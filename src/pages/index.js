@@ -1,39 +1,42 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
 
-export default function IndexPage({ children }) {
+// Lazy-load izindi pages
+const Profile = dynamic(() => import("./profile"));
+const Login = dynamic(() => import("./login"));
+const Register = dynamic(() => import("./register"));
+
+export default function IndexPage() {
   const router = useRouter();
+  const route = router.pathname;
 
-  // Function yo kugenzura aho uri
-  const currentRoute = router.pathname;
+  // Determine which component to show
+  let Content;
+  if (route === "/login") Content = <Login />;
+  else if (route === "/register") Content = <Register />;
+  else Content = <Profile />; // Default (profile page)
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <aside className="w-1/4 bg-gray-100 p-6">
-        <h1 className="text-xl font-bold mb-4">MyApp</h1>
+    <div className="min-h-screen flex bg-gray-50">
+      {/* Sidebar / Menu */}
+      <aside className="w-1/4 bg-white border-r p-6">
+        <h1 className="text-2xl font-bold mb-6">MyApp</h1>
         <ul className="space-y-3">
-          <li><Link href="/">🏠 Profile</Link></li>
-          <li><Link href="/login">🔑 Login</Link></li>
-          <li><Link href="/register">📝 Register</Link></li>
+          <li>
+            <Link href="/">👤 Profile</Link>
+          </li>
+          <li>
+            <Link href="/login">🔑 Login</Link>
+          </li>
+          <li>
+            <Link href="/register">📝 Register</Link>
+          </li>
         </ul>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6">
-        {currentRoute === "/" && <ProfileDraft />}
-        {children}
-      </main>
-    </div>
-  );
-}
-
-// Draft Profile view
-function ProfileDraft() {
-  return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-2">Profile (Draft)</h2>
-      <p className="text-gray-700">Iyi ni preview y’umwirondoro wawe...</p>
+      {/* Main page container */}
+      <main className="flex-1 p-8">{Content}</main>
     </div>
   );
 }
