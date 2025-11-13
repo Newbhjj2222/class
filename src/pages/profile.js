@@ -8,17 +8,22 @@ import Cookies from "js-cookie";
 import { useState } from "react";
 
 export default function Profile({ userDataServer }) {
-  const [userData, setUserData] = useState(userDataServer);
-  const [editField, setEditField] = useState(""); // "username" or "email"
+  // ✅ Fallbacks zikumira undefined errors
+  const [userData, setUserData] = useState(userDataServer || {});
+  const [editField, setEditField] = useState("");
   const [tempValue, setTempValue] = useState("");
   const [loading, setLoading] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState(userData.photoURL || "");
+  const [photoPreview, setPhotoPreview] = useState(userDataServer?.photoURL || "");
 
-  if (!userData) return <p className={styles.loading}>User not found</p>;
+  // ✅ Early return if no user data (safe)
+  if (!userDataServer || !userData.username) {
+    return <p className={styles.loading}>User not found or not logged in</p>;
+  }
 
+  // ✏️ Handle editing
   const handleFieldClick = (field) => {
     setEditField(field);
-    setTempValue(userData[field]);
+    setTempValue(userData[field] || "");
   };
 
   const handleSaveField = async (field) => {
@@ -27,7 +32,7 @@ export default function Profile({ userDataServer }) {
     try {
       const userRef = doc(db, "users", userData.id);
       await updateDoc(userRef, { [field]: tempValue });
-      setUserData(prev => ({ ...prev, [field]: tempValue }));
+      setUserData((prev) => ({ ...prev, [field]: tempValue }));
       setEditField("");
       alert(`${field} updated successfully!`);
     } catch (err) {
@@ -41,6 +46,7 @@ export default function Profile({ userDataServer }) {
     setEditField("");
   };
 
+  // 📸 Handle photo upload
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -51,29 +57,40 @@ export default function Profile({ userDataServer }) {
       const url = await getDownloadURL(storageRef);
       const userRef = doc(db, "users", userData.id);
       await updateDoc(userRef, { photoURL: url });
+
       setPhotoPreview(url);
-      setUserData(prev => ({ ...prev, photoURL: url }));
+      setUserData((prev) => ({ ...prev, photoURL: url }));
     } catch (err) {
-      console.error(err);
+      console.error("Photo upload failed:", err);
       alert(err.message);
     }
     setLoading(false);
   };
 
+  // 🚪 Logout handler
   const handleLogout = async () => {
-    await signOut(auth);
-    Cookies.remove("username");
-    Cookies.remove("role");
-    window.location.href = "/login";
+    try {
+      await signOut(auth);
+      Cookies.remove("username");
+      Cookies.remove("role");
+      window.location.href = "/login";
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Profile</h2>
 
+      {/* Profile Picture */}
       <div className={styles.profilePicWrapper}>
         {photoPreview ? (
-          <img src={photoPreview} alt="Profile" className={styles.profilePic} />
+          <img
+            src={photoPreview}
+            alt="Profile"
+            className={styles.profilePic}
+          />
         ) : (
           <div className={styles.profileDraft}>
             <FiUser size={60} />
@@ -81,62 +98,98 @@ export default function Profile({ userDataServer }) {
         )}
         <label className={styles.fileLabel}>
           <FiCamera /> Change Photo
-          <input type="file" accept="image/*" onChange={handlePhotoChange} className={styles.fileInput} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            className={styles.fileInput}
+          />
         </label>
       </div>
 
+      {/* Info Fields */}
       <div className={styles.formWrapper}>
         {/* Username */}
         <div className={styles.fieldWrapper}>
-          <FiUser className={styles.icon} onClick={() => handleFieldClick("username")} />
+          <FiUser
+            className={styles.icon}
+            onClick={() => handleFieldClick("username")}
+          />
           {editField === "username" ? (
             <>
               <input
                 className={styles.inputField}
                 value={tempValue}
-                onChange={e => setTempValue(e.target.value)}
+                onChange={(e) => setTempValue(e.target.value)}
               />
-              <button className={styles.buttonPrimary} onClick={() => handleSaveField("username")} disabled={loading}>
+              <button
+                className={styles.buttonPrimary}
+                onClick={() => handleSaveField("username")}
+                disabled={loading}
+              >
                 <FiCheck />
               </button>
-              <button className={styles.buttonReset} onClick={handleCancelField}>
+              <button
+                className={styles.buttonReset}
+                onClick={handleCancelField}
+              >
                 <FiX />
               </button>
             </>
           ) : (
-            <span className={styles.fieldValue}>{userData.username}</span>
+            <span className={styles.fieldValue}>
+              {userData?.username || "—"}
+            </span>
           )}
         </div>
 
         {/* Email */}
         <div className={styles.fieldWrapper}>
-          <FiMail className={styles.icon} onClick={() => handleFieldClick("email")} />
+          <FiMail
+            className={styles.icon}
+            onClick={() => handleFieldClick("email")}
+          />
           {editField === "email" ? (
             <>
               <input
                 className={styles.inputField}
                 value={tempValue}
-                onChange={e => setTempValue(e.target.value)}
+                onChange={(e) => setTempValue(e.target.value)}
               />
-              <button className={styles.buttonPrimary} onClick={() => handleSaveField("email")} disabled={loading}>
+              <button
+                className={styles.buttonPrimary}
+                onClick={() => handleSaveField("email")}
+                disabled={loading}
+              >
                 <FiCheck />
               </button>
-              <button className={styles.buttonReset} onClick={handleCancelField}>
+              <button
+                className={styles.buttonReset}
+                onClick={handleCancelField}
+              >
                 <FiX />
               </button>
             </>
           ) : (
-            <span className={styles.fieldValue}>{userData.email}</span>
+            <span className={styles.fieldValue}>
+              {userData?.email || "—"}
+            </span>
           )}
         </div>
 
         {/* Role */}
         <div className={styles.fieldWrapper}>
           <FiShield className={styles.icon} />
-          <span className={styles.fieldValue}>{userData.role}</span>
+          <span className={styles.fieldValue}>
+            {userData?.role || "—"}
+          </span>
         </div>
 
-        <button className={styles.buttonReset} onClick={handleLogout}>
+        <button
+          className={styles.buttonReset}
+          onClick={handleLogout}
+          disabled={loading}
+        >
           Logout
         </button>
       </div>
@@ -144,7 +197,7 @@ export default function Profile({ userDataServer }) {
   );
 }
 
-// SSR: Fetch user data from Firestore using username cookie
+// ✅ Server-side fetching
 export async function getServerSideProps({ req }) {
   const cookieUsername = req.cookies.username || null;
 
@@ -161,15 +214,17 @@ export async function getServerSideProps({ req }) {
     if (!querySnapshot.empty) {
       const docSnap = querySnapshot.docs[0];
       const data = docSnap.data();
-      // Serialize Firestore timestamp if exists
-      if (data.createdAt && data.createdAt.toDate) {
+
+      // Handle Firestore timestamps
+      if (data.createdAt?.toDate) {
         data.createdAt = data.createdAt.toDate().toISOString();
       }
+
       userData = { ...data, id: docSnap.id };
     }
   } catch (err) {
     console.error("Error fetching user data:", err);
   }
 
-  return { props: { userDataServer: userData } };
+  return { props: { userDataServer: userData || null } };
 }
