@@ -1,0 +1,98 @@
+.container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 12px;
+  background-color: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  color: #2563eb;
+  font-size: 1.2rem;
+}
+
+.inputField {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  outline: none;
+}
+
+.inputField:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 5px rgba(37,99,235,0.3);
+}
+
+.fileLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 5px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.fileInput {
+  display: none;
+}
+
+.buttonPrimary {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.buttonPrimary:hover {
+  background-color: #1e40af;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 500px) {
+  .container {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .inputField {
+    font-size: 0.95rem;
+    padding: 8px;
+  }
+
+  .buttonPrimary {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+}

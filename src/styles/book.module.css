@@ -1,0 +1,202 @@
+/* ====== General Container ====== */
+.container {
+  max-width: 950px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ====== Titles ====== */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: var(--foreground);
+}
+
+.bookAuthor {
+  text-align: center;
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 15px;
+}
+
+/* ====== Book List Grid ====== */
+.bookList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  align-items: start;
+}
+
+/* ====== Book Card ====== */
+.bookCard {
+  background-color: var(--background);
+  color: var(--foreground);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.bookCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+}
+
+.bookTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--foreground);
+}
+
+/* ====== Buttons & Actions ====== */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.downloadBtn,
+.readBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.25s ease, transform 0.15s ease;
+}
+
+.downloadBtn:hover,
+.readBtn:hover {
+  background-color: #1e40af;
+  transform: translateY(-2px);
+}
+
+/* ====== PDF Reader Section ====== */
+.pdfWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+  background-color: var(--background);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.pageControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.pageControls button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.pageControls button:hover {
+  background-color: #1e40af;
+  transform: translateY(-1px);
+}
+
+.pageControls button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.pageControls span {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ====== Loading / Empty States ====== */
+.loading,
+.noBooks {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--foreground);
+  opacity: 0.8;
+}
+
+/* ====== Responsive Design ====== */
+@media (max-width: 700px) {
+  .container {
+    margin: 20px;
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .bookCard {
+    padding: 15px;
+  }
+
+  .bookTitle {
+    font-size: 1.1rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .downloadBtn,
+  .readBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pageControls {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* ====== Dark Mode Smooth Transition ====== */
+@media (prefers-color-scheme: dark) {
+  .bookCard {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+  }
+
+  .downloadBtn,
+  .readBtn {
+    background-color: #3b82f6;
+  }
+
+  .downloadBtn:hover,
+  .readBtn:hover {
+    background-color: #1d4ed8;
+  }
+}

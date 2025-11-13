@@ -1,0 +1,136 @@
+/* Container for login/register form */
+.container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 12px;
+  background-color: var(--background); /* Follows light/dark mode */
+  color: var(--foreground);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Form title */
+.title {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+/* Wrapper for the form fields */
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Input fields */
+.inputField {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db; /* Light gray border */
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.inputField:focus {
+  border-color: #2563eb; /* Blue on focus */
+  box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+}
+
+/* Select field */
+.selectField {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  outline: none;
+  background-color: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.selectField:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+}
+
+/* Primary button */
+.buttonPrimary {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background-color: #2563eb; /* Blue */
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.buttonPrimary:hover {
+  background-color: #1e40af; /* Darker blue on hover */
+}
+
+/* Reset password button */
+.buttonReset {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background-color: #047857; /* Green */
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.buttonReset:hover {
+  background-color: #065f46; /* Darker green on hover */
+}
+
+/* Error messages */
+.error {
+  color: #dc2626; /* Red */
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Password wrapper for toggle icon */
+.passwordWrapper {
+  position: relative;
+}
+
+/* Password show/hide icon */
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6b7280; /* Gray */
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 500px) {
+  .container {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .inputField, .selectField, .buttonPrimary, .buttonReset {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+}

@@ -1,0 +1,131 @@
+.container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 12px;
+  background-color: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.profilePicWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.profilePic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.profileDraft {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  color: #4b5563;
+}
+
+.fileLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 5px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.fileInput {
+  display: none;
+}
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon {
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #2563eb;
+}
+
+.fieldValue {
+  font-size: 1rem;
+}
+
+.inputField {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  outline: none;
+}
+
+.inputField:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 5px rgba(37,99,235,0.3);
+}
+
+.buttonPrimary {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonPrimary:hover {
+  background-color: #1e40af;
+}
+
+.buttonReset {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: #dc2626;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonReset:hover {
+  background-color: #b91c1c;
+}
+
+@media (max-width: 500px) {
+  .container {
+    max-width: 90%;
+    padding: 20px;
+  }
+}
