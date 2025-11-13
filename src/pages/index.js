@@ -11,7 +11,7 @@ export default function Home() {
         <FiSettings className={styles.icon} />
         <h1 className={styles.title}>Urubuga ruracyubakwa 🏗️</h1>
         <p className={styles.text}>
-          Turacyanoza byinshi... ariko hari zimwe muri pages wamaze kugeraho 👇
+          Turacyanoza byinshi... ariko hari zimwe muri pages zamaze kugeraho zuzuye 👇
         </p>
 
         <div className={styles.links}>
