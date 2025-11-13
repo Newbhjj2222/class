@@ -1,0 +1,80 @@
+/* styles/index.module.css */
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  font-family: "Poppins", sans-serif;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+  font-size: 60px;
+  color: #0070f3;
+  margin-bottom: 20px;
+  animation: spin 5s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.text {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 25px;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #0070f3;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+.link:hover {
+  background-color: #0056c1;
+  transform: translateY(-2px);
+}
+
+.footer {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
