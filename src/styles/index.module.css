@@ -21,9 +21,19 @@
 }
 
 .icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 60px;
   color: var(--accent-color);
+  margin-bottom: 20px;
+  animation: spin 6s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .title {
@@ -50,16 +60,18 @@
   justify-content: center;
   text-decoration: none;
   font-weight: 500;
-  color: var(--link-color);
-  border: 1px solid var(--link-border);
+  color: var(--button-text);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
   border-radius: 8px;
   padding: 10px 16px;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, transform 0.2s ease;
 }
 
 .link:hover {
-  background: var(--link-hover-bg);
-  color: var(--link-hover-text);
+  background: var(--button-hover-bg);
+  color: var(--button-hover-text);
+  transform: scale(1.05);
 }
 
 .footer {
