@@ -1,21 +1,19 @@
-// src/components/PDFViewer.js
-"use client";
+// components/PDFViewer.js
+import { Document, Page } from "react-pdf";
+import { useState } from "react";
 
-import { Worker, Viewer } from "@react-pdf-viewer/core";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+export default function PDFViewer({ url }) {
+  const [numPages, setNumPages] = useState(null);
 
-export default function PDFViewer({ fileUrl }) {
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+  const onLoad = ({ numPages }) => setNumPages(numPages);
 
   return (
-    <div style={{ height: "80vh", width: "100%" }}>
-      {fileUrl && (
-        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.9.179/build/pdf.worker.min.js">
-          <Viewer fileUrl={fileUrl} plugins={[defaultLayoutPluginInstance]} />
-        </Worker>
-      )}
+    <div style={{ marginTop: 20 }}>
+      <Document file={url} onLoadSuccess={onLoad}>
+        {Array.from(new Array(numPages), (e, i) => (
+          <Page key={i} pageNumber={i + 1} />
+        ))}
+      </Document>
     </div>
   );
 }
