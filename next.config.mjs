@@ -2,11 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // ✅ PDF Worker fix for react-pdf on Next.js 16
   webpack(config) {
+    // Allow importing the pdf.worker file correctly
     config.module.rules.push({
       test: /pdf\.worker\.min\.js$/,
       type: "asset/resource",
+      generator: {
+        filename: "static/chunks/[name].[hash][ext]",
+      },
     });
 
     return config;
