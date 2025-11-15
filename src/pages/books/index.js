@@ -1,52 +1,84 @@
-// pages/books/index.js
+import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/components/firebase";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import PDFViewer from "@/components/PDFViewer";
 
-export default function BooksList() {
+export default function BooksPage() {
   const [books, setBooks] = useState([]);
+  const [activeBook, setActiveBook] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Get all books from Firestore
   useEffect(() => {
-    const loadBooks = async () => {
-      const ref = collection(db, "books");
-      const snapshot = await getDocs(ref);
+    const fetchBooks = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "books"));
+        const list = [];
 
-      const items = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
 
-      setBooks(items);
+        setBooks(list);
+      } catch (error) {
+        console.log("Error fetching books:", error);
+      }
+      setLoading(false);
     };
 
-    loadBooks();
+    fetchBooks();
   }, []);
 
+  if (loading) return <p style={{ padding: 20 }}>Loading books...</p>;
+
   return (
-    <div style={{ padding: 30 }}>
-      <h1>📚 Ibitabo</h1>
+    <div style={{ padding: "20px" }}>
+      <h1>📚 Books Library</h1>
 
-      {books.length === 0 && <p>Loading books...</p>}
+      {!activeBook && (
+        <div>
+          {books.length === 0 && <p>No books found.</p>}
 
-      <ul>
-        {books.map(book => (
-          <li key={book.id} style={{ marginBottom: 20 }}>
-            <Link href={`/books/${book.id}`}>
-              <button style={{
-                padding: "10px 15px",
-                cursor: "pointer",
-                background: "#0070f3",
-                color: "white",
-                border: "none",
-                borderRadius: 6
-              }}>
-                Soma: {book.title}
-              </button>
-            </Link>
-          </li>
-        ))}
-      </ul>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {books.map((book) => (
+              <li
+                key={book.id}
+                onClick={() => setActiveBook(book)}
+                style={{
+                  padding: "15px",
+                  margin: "10px 0",
+                  background: "#f5f5f5",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                <strong>{book.title || "Untitled Book"}</strong>
+                <p style={{ margin: 0, opacity: 0.8 }}>
+                  Click to open the book
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* PDF Viewer */}
+      {activeBook && (
+        <div>
+          <button
+            onClick={() => setActiveBook(null)}
+            style={{
+              marginBottom: "20px",
+              padding: "10px 20px",
+            }}
+          >
+            ← Back to Library
+          </button>
+
+          <h2>{activeBook.title}</h2>
+          <PDFViewer url={activeBook.url} />
+        </div>
+      )}
     </div>
   );
 }
