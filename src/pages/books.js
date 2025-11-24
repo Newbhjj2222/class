@@ -1,15 +1,14 @@
-// pages/books.js
+import { useState } from "react";
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import Link from "next/link";
 
 export async function getServerSideProps() {
   const booksRef = collection(db, "books");
-  const q = query(booksRef, orderBy("title", "asc"));
+  const q = query(booksRef, orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
 
-  const books = snapshot.docs.map(doc => ({
+  const books = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
@@ -18,6 +17,8 @@ export async function getServerSideProps() {
 }
 
 export default function BooksPage({ books }) {
+  const [selectedPdf, setSelectedPdf] = useState(null);
+
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>📚 All Books</h1>
@@ -25,10 +26,9 @@ export default function BooksPage({ books }) {
       <div className={styles.grid}>
         {books.map((book) => (
           <div key={book.id} className={styles.card}>
-
             {/* COVER IMAGE */}
-            {book.cover ? (
-              <img src={book.cover} alt={book.title} className={styles.cover} />
+            {book.coverUrl ? (
+              <img src={book.coverUrl} alt={book.title} className={styles.cover} />
             ) : (
               <div className={styles.noCover}>No Image</div>
             )}
@@ -40,13 +40,34 @@ export default function BooksPage({ books }) {
             <p className={styles.author}>By: {book.author}</p>
 
             {/* READ BUTTON */}
-            <Link href={`/read?id=${book.id}`}>
-              <button className={styles.btn}>Read Book</button>
-            </Link>
-
+            <button
+              className={styles.btn}
+              onClick={() => setSelectedPdf(book.pdfUrl)}
+            >
+              Read Book
+            </button>
           </div>
         ))}
       </div>
+
+      {/* IFRAME PDF PREVIEW */}
+      {selectedPdf && (
+        <div className={styles.iframeWrapper}>
+          <iframe
+            src={selectedPdf}
+            width="100%"
+            height="90vh"
+            style={{ border: "none" }}
+          ></iframe>
+
+          <button
+            className={styles.closeIframeBtn}
+            onClick={() => setSelectedPdf(null)}
+          >
+            Close Preview
+          </button>
+        </div>
+      )}
     </div>
   );
 }
