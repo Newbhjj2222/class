@@ -1,63 +1,78 @@
 import { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../components/firebase";
+import { db } from "../components/firebase";
 import styles from "../styles/addbook.module.css";
-import { FiBook, FiLink, FiFileText, FiUpload } from "react-icons/fi";
+import { FiBook, FiUpload } from "react-icons/fi";
 
 export default function AddBook({ username }) {
   const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [file, setFile] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  const CLOUDINARY_UPLOAD_PRESET = "Pdfbooks";
+  const CLOUDINARY_CLOUD = "dilowy3fd";
+
+  // 👉 Generic Cloudinary uploader (image or pdf)
+  const uploadCloudinary = async (file, type = "image") => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    // endpoint itandukanye bitewe na file
+    const endpoint =
+      type === "pdf"
+        ? `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`
+        : `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!data.secure_url) {
+      console.error(data);
+      throw new Error("Cloudinary upload failed");
+    }
+
+    return data.secure_url;
   };
 
   const handlePublish = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!title || (!url && !file)) {
-      setError("Please provide a title and either a URL or a file.");
+    if (!title || !pdfFile || !coverFile) {
+      setError("Please upload Title, Cover image, and PDF file.");
       return;
     }
 
     setLoading(true);
+
     try {
-      let finalUrl = url;
+      // 1️⃣ Upload cover image
+      const coverUrl = await uploadCloudinary(coverFile, "image");
 
-      // 👉 If uploading a file, send to Firebase Storage
-      if (file) {
-        const storageRef = ref(
-          storage,
-          `books/${Date.now()}-${file.name}`
-        );
+      // 2️⃣ Upload PDF file
+      const pdfUrl = await uploadCloudinary(pdfFile, "pdf");
 
-        // upload file
-        await uploadBytes(storageRef, file);
-
-        // get public URL
-        finalUrl = await getDownloadURL(storageRef);
-      }
-
-      // Save metadata to Firestore
+      // 3️⃣ Save metadata to Firestore
       await addDoc(collection(db, "books"), {
         title,
-        url: finalUrl,
+        coverUrl,
+        pdfUrl,
         author: username,
         createdAt: serverTimestamp(),
       });
 
-      alert("Book published successfully!");
+      alert("Book uploaded successfully!");
 
-      // Reset form
       setTitle("");
-      setUrl("");
-      setFile(null);
-
+      setPdfFile(null);
+      setCoverFile(null);
     } catch (err) {
       console.error(err);
       setError("Failed to upload. Please try again.");
@@ -68,11 +83,12 @@ export default function AddBook({ username }) {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Add a Book</h2>
+      <h2 className={styles.title}>Upload Book</h2>
       {error && <p className={styles.error}>{error}</p>}
-      
+
       <form className={styles.formWrapper} onSubmit={handlePublish}>
         
+        {/* Title */}
         <div className={styles.inputGroup}>
           <FiBook className={styles.icon} />
           <input
@@ -85,32 +101,34 @@ export default function AddBook({ username }) {
           />
         </div>
 
+        {/* Cover Image */}
         <div className={styles.inputGroup}>
-          <FiLink className={styles.icon} />
-          <input
-            className={styles.inputField}
-            type="text"
-            placeholder="Book URL (optional)"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-        </div>
-
-        <div className={styles.inputGroup}>
-          <FiFileText className={styles.icon} />
           <label className={styles.fileLabel}>
-            <FiUpload /> {file ? file.name : "Upload PDF file"}
+            <FiUpload /> {coverFile ? coverFile.name : "Upload Cover Image"}
             <input
               type="file"
-              accept=".pdf"
-              onChange={handleFileChange}
+              accept="image/*"
+              onChange={(e) => setCoverFile(e.target.files[0])}
+              className={styles.fileInput}
+            />
+          </label>
+        </div>
+
+        {/* PDF File */}
+        <div className={styles.inputGroup}>
+          <label className={styles.fileLabel}>
+            <FiUpload /> {pdfFile ? pdfFile.name : "Upload PDF File"}
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setPdfFile(e.target.files[0])}
               className={styles.fileInput}
             />
           </label>
         </div>
 
         <button className={styles.buttonPrimary} type="submit" disabled={loading}>
-          {loading ? "Publishing..." : "Publish"}
+          {loading ? "Uploading..." : "Publish"}
         </button>
       </form>
     </div>
