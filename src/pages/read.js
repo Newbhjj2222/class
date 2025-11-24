@@ -26,7 +26,9 @@ export default function ReadBook({ book }) {
       <p>By: {book.author}</p>
 
       <iframe
-        src={book.url}
+        src={`https://docs.google.com/viewer?url=${encodeURIComponent(
+          book.pdfUrl
+        )}&embedded=true`}
         style={{
           width: "100%",
           height: "90vh",
