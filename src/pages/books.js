@@ -23,14 +23,27 @@ export default function BooksPage({ books }) {
       <h1 className={styles.header}>📚 All Books</h1>
 
       <div className={styles.grid}>
-        {books.map(book => (
+        {books.map((book) => (
           <div key={book.id} className={styles.card}>
-            <h3>{book.title}</h3>
+
+            {/* COVER IMAGE */}
+            {book.cover ? (
+              <img src={book.cover} alt={book.title} className={styles.cover} />
+            ) : (
+              <div className={styles.noCover}>No Image</div>
+            )}
+
+            {/* TITLE */}
+            <h3 className={styles.title}>{book.title}</h3>
+
+            {/* AUTHOR */}
             <p className={styles.author}>By: {book.author}</p>
 
+            {/* READ BUTTON */}
             <Link href={`/read?id=${book.id}`}>
               <button className={styles.btn}>Read Book</button>
             </Link>
+
           </div>
         ))}
       </div>
