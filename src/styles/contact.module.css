@@ -48,13 +48,11 @@
   border-radius: 10px;
   border: 1px solid #d1d5db;
   font-size: 1rem;
-  background: #fff;
-  transition: border 0.2s;
-}
 
-.textarea {
-  min-height: 130px;
-  resize: vertical;
+  background: var(--background);   /* ⭐ Works in dark & light */
+  color: var(--foreground);        /* ⭐ Text color adapts */
+
+  transition: background 0.3s, color 0.3s, border 0.2s;
 }
 
 .input:focus,
