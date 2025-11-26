@@ -1,0 +1,107 @@
+/* about.module.css */
+
+/* Main container with dynamic theme */
+.container {
+  min-height: 100vh;
+  width: 100%;
+  padding: 20px;
+  background: var(--background);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Groblor style blurred gradient orbs */
+.container::before,
+.container::after {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+  z-index: 0;
+  transition: all 0.3s ease;
+}
+
+/* Light mode blur colors */
+.container::before {
+  top: -50px;
+  left: -60px;
+  background: radial-gradient(circle, #7b61ff, #5a39d1, transparent);
+}
+.container::after {
+  bottom: -60px;
+  right: -40px;
+  background: radial-gradient(circle, #00b3ff, #0074d4, transparent);
+}
+
+/* Dark mode overrides using prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  .container::before {
+    background: radial-gradient(circle, #3b1b9d, #240c66, transparent);
+    opacity: 0.25;
+  }
+  .container::after {
+    background: radial-gradient(circle, #004b78, #002a47, transparent);
+    opacity: 0.25;
+  }
+}
+
+/* Content card */
+.card {
+  position: relative;
+  max-width: 850px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 20px;
+  background: var(--background);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+/* Dark mode card improvement */
+@media (prefers-color-scheme: dark) {
+  .card {
+    box-shadow: 0 4px 18px rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Icons */
+.icon {
+  font-size: 28px;
+  color: #6f4cff;
+}
+
+.iconSmall {
+  font-size: 22px;
+  color: #6f4cff;
+}
+
+/* Paragraphs with theme compatibility */
+.text {
+  margin-bottom: 15px;
+  color: var(--foreground);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card {
+    padding: 20px;
+  }
+  .text {
+    font-size: 0.95rem;
+  }
+  .icon {
+    font-size: 24px;
+  }
+  .iconSmall {
+    font-size: 20px;
+  }
+}
