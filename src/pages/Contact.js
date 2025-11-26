@@ -1,18 +1,13 @@
-"use client";
-
 import { useState } from "react";
-import styles from "./contact.module.css";
-import { db } from "@/components/firebase";
+import styles from "../styles/contact.module.css";
+import { db } from "../components/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-
-// Function to read cookies
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
+import Cookies from "js-cookie";
+import { FiMail, FiUser, FiMessageCircle, FiSend } from "react-icons/fi";
 
 export default function Contact() {
+  const username = Cookies.get("username") || "Guest";
+
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,8 +19,6 @@ export default function Contact() {
     setSuccess("");
 
     try {
-      const username = getCookie("username") || "Unknown User";
-
       await addDoc(collection(db, "messages"), {
         username,
         email,
@@ -35,24 +28,33 @@ export default function Contact() {
 
       setEmail("");
       setMessage("");
-      setSuccess("Your message has been sent successfully!");
-    } catch (error) {
-      console.error(error);
-      setSuccess("Failed to send your message. Try again.");
-    } finally {
-      setLoading(false);
+      setSuccess("Message sent successfully!");
+    } catch (err) {
+      console.error("Error sending message: ", err);
+      setSuccess("Failed to send. Try again.");
     }
+
+    setLoading(false);
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Contact Us</h1>
       <p className={styles.subtitle}>
-        Have questions, feedback, or suggestions? We’d love to hear from you.
+        Feel free to reach out for help, suggestions or any information.
       </p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        <label>Email</label>
+        {/* Username (auto-filled & disabled) */}
+        <label>
+          <FiUser className={styles.icon} /> Username
+        </label>
+        <input type="text" value={username} disabled />
+
+        {/* Email */}
+        <label>
+          <FiMail className={styles.icon} /> Email
+        </label>
         <input
           type="email"
           placeholder="Enter your email..."
@@ -61,16 +63,19 @@ export default function Contact() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <label>Your Message</label>
+        {/* Message */}
+        <label>
+          <FiMessageCircle className={styles.icon} /> Message
+        </label>
         <textarea
-          placeholder="Write your message here..."
+          placeholder="Write your message..."
           required
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         ></textarea>
 
         <button type="submit" disabled={loading}>
-          {loading ? "Sending..." : "Send Message"}
+          <FiSend /> {loading ? "Sending..." : "Send Message"}
         </button>
 
         {success && <p className={styles.success}>{success}</p>}
