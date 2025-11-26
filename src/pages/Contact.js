@@ -45,37 +45,41 @@ export default function Contact() {
       </p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        {/* Username (auto-filled & disabled) */}
-        <label>
+        <label className={styles.label}>
           <FiUser className={styles.icon} /> Username
         </label>
-        <input type="text" value={username} disabled />
+        <input type="text" value={username} className={styles.input} disabled />
 
-        {/* Email */}
-        <label>
+        <label className={styles.label}>
           <FiMail className={styles.icon} /> Email
         </label>
         <input
           type="email"
           placeholder="Enter your email..."
           required
+          className={styles.input}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        {/* Message */}
-        <label>
+        <label className={styles.label}>
           <FiMessageCircle className={styles.icon} /> Message
         </label>
         <textarea
           placeholder="Write your message..."
           required
+          className={styles.textarea}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         ></textarea>
 
-        <button type="submit" disabled={loading}>
-          <FiSend /> {loading ? "Sending..." : "Send Message"}
+        <button
+          type="submit"
+          className={loading ? styles.buttonDisabled : styles.button}
+          disabled={loading}
+        >
+          <FiSend />
+          {loading ? "Sending..." : "Send Message"}
         </button>
 
         {success && <p className={styles.success}>{success}</p>}
