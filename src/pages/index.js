@@ -26,6 +26,12 @@ export default function Home() {
           <Link href="/profile" className={styles.link}>
             <FiUser /> &nbsp;Profile Page
           </Link>
+    <Link href="/Contact" className={styles.link}>
+            <FiUser /> &nbsp;Contact us
+          </Link>
+    <Link href="/About" className={styles.link}>
+            <FiUser /> &nbsp;About us
+          </Link>
 
     <Link href="/addbook" className={styles.link}>
             <FiUserPlus /> &nbsp;publish Page
