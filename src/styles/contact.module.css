@@ -1,178 +1,107 @@
-/* contact.module.css */
-
-/* Main container */
 .container {
-  min-height: 100vh;
-  width: 100%;
-  padding: 20px;
-  background: var(--background);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Groblor blurred background */
-.container::before,
-.container::after {
-  content: "";
-  position: absolute;
-  width: 320px;
-  height: 320px;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.35;
-  z-index: 0;
-  transition: all 0.3s ease;
-}
-
-.container::before {
-  top: -60px;
-  left: -50px;
-  background: radial-gradient(circle, #7b61ff, #5031d4, transparent);
-}
-
-.container::after {
-  bottom: -80px;
-  right: -40px;
-  background: radial-gradient(circle, #00b3ff, #006bd4, transparent);
-}
-
-@media (prefers-color-scheme: dark) {
-  .container::before {
-    background: radial-gradient(circle, #3b1b9d, #1f0a66, transparent);
-    opacity: 0.25;
-  }
-  .container::after {
-    background: radial-gradient(circle, #004b78, #002a42, transparent);
-    opacity: 0.25;
-  }
-}
-
-/* Card */
-.card {
-  position: relative;
   max-width: 650px;
-  width: 100%;
-  padding: 30px;
-  border-radius: 20px;
-  background: var(--background);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
-  z-index: 1;
-  transition: background 0.3s ease;
-}
-
-@media (prefers-color-scheme: dark) {
-  .card {
-    box-shadow: 0 4px 18px rgba(255, 255, 255, 0.07);
-  }
-}
-
-/* Title */
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--foreground);
-  margin-bottom: 10px;
-}
-
-/* Subtitle text */
-.description {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--foreground);
-  margin-bottom: 20px;
-}
-
-/* Form */
-.form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* Inputs */
-.inputGroup,
-.textareaGroup {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input,
-.textarea {
-  width: 100%;
-  padding: 12px 12px 12px 42px;
-  border: 1px solid #9993;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  outline: none;
-  background: var(--background);
-  color: var(--foreground);
-  transition: border 0.3s ease;
-}
-
-.input:focus,
-.textarea:focus {
-  border-color: #6f4cff;
-}
-
-/* Icon inside input */
-.icon {
-  position: absolute;
-  left: 12px;
-  font-size: 18px;
-  color: #6f4cff;
-}
-
-/* Textarea */
-.textarea {
-  height: 130px;
-  resize: none;
-}
-
-/* Button */
-.button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #6f4cff;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.button:hover {
-  background: #5838ff;
-}
-
-.button:disabled {
-  background: #9a8aff;
-  cursor: not-allowed;
-}
-
-/* Status message */
-.status {
-  margin-top: 12px;
-  color: var(--foreground);
-  font-size: 0.95rem;
+  margin: 0 auto;
+  padding: 40px 20px;
   text-align: center;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-  .card {
-    padding: 20px;
-  }
+.title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-bottom: 30px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: var(--background);
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.form label {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--foreground);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  opacity: 0.7;
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  background: #fff;
+  transition: border 0.2s;
+}
+
+.form textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.form input:focus,
+.form textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+}
+
+button {
+  padding: 14px;
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  align-items: center;
+  transition: background 0.25s;
+}
+
+button:hover {
+  background: #1e4fc6;
+}
+
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.success {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
   .title {
-    font-size: 1.7rem;
+    font-size: 1.8rem;
   }
-  .input,
-  .textarea {
-    font-size: 0.9rem;
+
+  .form {
+    padding: 20px;
   }
 }
