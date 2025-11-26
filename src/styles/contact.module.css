@@ -27,7 +27,7 @@
   box-shadow: 0 4px 18px rgba(0,0,0,0.08);
 }
 
-.form label {
+.label {
   text-align: left;
   font-weight: 600;
   font-size: 0.9rem;
@@ -41,8 +41,8 @@
   opacity: 0.7;
 }
 
-.form input,
-.form textarea {
+.input,
+.textarea {
   width: 100%;
   padding: 12px;
   border-radius: 10px;
@@ -52,18 +52,18 @@
   transition: border 0.2s;
 }
 
-.form textarea {
+.textarea {
   min-height: 130px;
   resize: vertical;
 }
 
-.form input:focus,
-.form textarea:focus {
+.input:focus,
+.textarea:focus {
   border-color: #2563eb;
   outline: none;
 }
 
-button {
+.button {
   padding: 14px;
   background: #2563eb;
   border: none;
@@ -79,11 +79,11 @@ button {
   transition: background 0.25s;
 }
 
-button:hover {
+.button:hover {
   background: #1e4fc6;
 }
 
-button:disabled {
+.buttonDisabled {
   background: #9ca3af;
   cursor: not-allowed;
 }
