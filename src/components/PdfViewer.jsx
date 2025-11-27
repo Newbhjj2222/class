@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import workerSrc from "pdfjs-dist/build/pdf.worker.entry";
 
-// PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+// Use local worker instead of CDN
+pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 export default function PdfViewer({ url, onClose }) {
   const [numPages, setNumPages] = useState(null);
