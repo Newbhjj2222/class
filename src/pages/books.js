@@ -17,27 +17,18 @@ export async function getServerSideProps() {
 }
 
 export default function BooksPage({ books }) {
-  const [selectedPdf, setSelectedPdf] = useState(null);
-  const [loadingPdf, setLoadingPdf] = useState(false);
+  const [selectedUrl, setSelectedUrl] = useState(null);
 
-  const handleReadBook = async (pdfUrl) => {
-    setLoadingPdf(true);
-    try {
-      // Fetch PDF as blob
-      const res = await fetch(pdfUrl);
-      const blob = await res.blob();
-      // Create temporary URL
-      const pdfBlobUrl = URL.createObjectURL(blob);
-      setSelectedPdf(pdfBlobUrl);
-    } catch (err) {
-      console.error("Failed to load PDF:", err);
-      alert("Failed to load PDF. Please try again.");
+  const handleReadBook = (url) => {
+    if (!url) {
+      alert("Book URL not found.");
+      return;
     }
-    setLoadingPdf(false);
+    setSelectedUrl(url); // 👉 direct URL stored in Firestore
   };
 
-  const handleClosePdf = () => {
-    setSelectedPdf(null);
+  const handleClose = () => {
+    setSelectedUrl(null);
   };
 
   return (
@@ -47,8 +38,13 @@ export default function BooksPage({ books }) {
       <div className={styles.bookList}>
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard}>
+            
             {book.coverUrl ? (
-              <img src={book.coverUrl} alt={book.title} className={styles.cover} />
+              <img
+                src={book.coverUrl}
+                alt={book.title}
+                className={styles.cover}
+              />
             ) : (
               <div className={styles.noCover}>No Image</div>
             )}
@@ -59,15 +55,12 @@ export default function BooksPage({ books }) {
             <div className={styles.actions}>
               <button
                 className={styles.readBtn}
-                onClick={() => handleReadBook(book.pdfUrl)}
+                onClick={() => handleReadBook(book.url)}
               >
-                {loadingPdf ? "Loading..." : "Read Book"}
+                Read Book
               </button>
-              <a
-                className={styles.downloadBtn}
-                href={book.pdfUrl}
-                download
-              >
+
+              <a className={styles.downloadBtn} href={book.url} download>
                 Download
               </a>
             </div>
@@ -75,17 +68,18 @@ export default function BooksPage({ books }) {
         ))}
       </div>
 
-      {/* PDF Preview */}
-      {selectedPdf && (
+      {/* Preview */}
+      {selectedUrl && (
         <div className={styles.pdfWrapper}>
           <iframe
-            src={selectedPdf}
+            src={selectedUrl}
             width="100%"
             height="90vh"
             style={{ border: "none" }}
-            title="PDF Preview"
+            title="Book Preview"
           ></iframe>
-          <button className={styles.closePdfBtn} onClick={handleClosePdf}>
+
+          <button className={styles.closePdfBtn} onClick={handleClose}>
             Close Preview
           </button>
         </div>
