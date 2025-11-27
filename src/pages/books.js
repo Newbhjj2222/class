@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PdfViewer from "@/components/PdfViewer";
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
@@ -20,18 +21,10 @@ export default function BooksPage({ books }) {
   const [selectedUrl, setSelectedUrl] = useState(null);
 
   const handleReadBook = (url) => {
-    if (!url) {
-      alert("Book URL not found.");
-      return;
-    }
+    if (!url) return alert("URL not found");
 
-    // 👉 Supabase: remove forced download
-    const viewUrl = `${url}?download=0`;
+    const viewUrl = `${url}?download=0`; // avoid forced download
     setSelectedUrl(viewUrl);
-  };
-
-  const handleClose = () => {
-    setSelectedUrl(null);
   };
 
   return (
@@ -42,15 +35,11 @@ export default function BooksPage({ books }) {
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard}>
             
-            {book.coverUrl ? (
-              <img
-                src={book.coverUrl}
-                alt={book.title}
-                className={styles.cover}
-              />
-            ) : (
-              <div className={styles.noCover}>No Image</div>
-            )}
+            <img
+              src={book.coverUrl}
+              alt={book.title}
+              className={styles.cover}
+            />
 
             <h3 className={styles.bookTitle}>{book.title}</h3>
             <p className={styles.bookAuthor}>By: {book.author}</p>
@@ -63,11 +52,7 @@ export default function BooksPage({ books }) {
                 Read Book
               </button>
 
-              <a
-                className={styles.downloadBtn}
-                href={book.url}
-                download
-              >
+              <a className={styles.downloadBtn} href={book.url} download>
                 Download
               </a>
             </div>
@@ -75,21 +60,8 @@ export default function BooksPage({ books }) {
         ))}
       </div>
 
-      {/* PDF / Book Preview */}
       {selectedUrl && (
-        <div className={styles.pdfWrapper}>
-          <iframe
-            src={selectedUrl}
-            width="100%"
-            height="90vh"
-            style={{ border: "none" }}
-            title="Book Viewer"
-          ></iframe>
-
-          <button className={styles.closePdfBtn} onClick={handleClose}>
-            Close Preview
-          </button>
-        </div>
+        <PdfViewer url={selectedUrl} onClose={() => setSelectedUrl(null)} />
       )}
     </div>
   );
