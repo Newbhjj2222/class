@@ -24,9 +24,8 @@ export default function BooksPage({ books }) {
   const [selectedUrl, setSelectedUrl] = useState(null);
 
   const handleReadBook = (url) => {
-    if (!url) return alert("Book URL not found.");
-    const viewUrl = `${url}?download=0`; // avoid forced download on Supabase
-    setSelectedUrl(viewUrl);
+    if (!url) return alert("Book URL not found");
+    setSelectedUrl(url); // Google Docs Viewer will handle embedding
   };
 
   return (
