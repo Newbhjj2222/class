@@ -1,4 +1,4 @@
-"use client"; // client-only component
+"use client";
 
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
@@ -9,28 +9,48 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 export default function PdfViewer({ url, onClose }) {
   const [numPages, setNumPages] = useState(null);
   const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
 
   const onLoadSuccess = ({ numPages }) => setNumPages(numPages);
+
+  const onLoadError = (err) => {
+    console.error("PDF failed to load:", err);
+    setError(err.message || "Unknown error while loading PDF.");
+  };
 
   return (
     <div style={styles.wrapper}>
       <button style={styles.closeBtn} onClick={onClose}>✖ Close</button>
 
-      <div style={styles.pdfContainer}>
-        <Document
-          file={url}
-          onLoadSuccess={onLoadSuccess}
-          loading={<p style={{color:"#fff"}}>Loading PDF…</p>}
-        >
-          <Page pageNumber={page} width={window.innerWidth * 0.9} />
-        </Document>
-      </div>
+      {error ? (
+        <div style={styles.error}>
+          <h3>Failed to load PDF</h3>
+          <p>{error}</p>
+          <p>
+            Try opening the PDF in a new tab:
+            <a href={url} target="_blank" rel="noopener noreferrer">Open PDF</a>
+          </p>
+        </div>
+      ) : (
+        <div style={styles.pdfContainer}>
+          <Document
+            file={encodeURI(url)}
+            onLoadSuccess={onLoadSuccess}
+            onLoadError={onLoadError}
+            loading={<p style={{ color: "#fff" }}>Loading PDF…</p>}
+          >
+            <Page pageNumber={page} width={window.innerWidth * 0.9} />
+          </Document>
 
-      <div style={styles.pagination}>
-        <button disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
-        <span>Page {page} of {numPages}</span>
-        <button disabled={page >= numPages} onClick={() => setPage(page + 1)}>Next</button>
-      </div>
+          {numPages && (
+            <div style={styles.pagination}>
+              <button disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
+              <span>Page {page} of {numPages}</span>
+              <button disabled={page >= numPages} onClick={() => setPage(page + 1)}>Next</button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -63,7 +83,8 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     width: "100%",
-    flexGrow: 1,
+    flexDirection: "column",
+    alignItems: "center",
   },
   pagination: {
     marginTop: 10,
@@ -72,5 +93,11 @@ const styles = {
     gap: 20,
     fontSize: 16,
     alignItems: "center",
+  },
+  error: {
+    color: "white",
+    textAlign: "center",
+    maxWidth: "80%",
+    marginTop: 50,
   },
 };
