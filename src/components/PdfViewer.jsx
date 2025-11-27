@@ -1,4 +1,4 @@
-"use client";
+"use client"; // make sure this is client-only
 
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
@@ -9,9 +9,7 @@ export default function PdfViewer({ url, onClose }) {
   const [numPages, setNumPages] = useState(null);
   const [page, setPage] = useState(1);
 
-  function onLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
+  const onLoadSuccess = ({ numPages }) => setNumPages(numPages);
 
   return (
     <div style={styles.wrapper}>
@@ -20,23 +18,15 @@ export default function PdfViewer({ url, onClose }) {
       <Document
         file={url}
         onLoadSuccess={onLoadSuccess}
-        loading={<p>Loading PDF…</p>}
+        loading={<p style={{color:"#fff"}}>Loading PDF…</p>}
       >
         <Page pageNumber={page} width={350} />
       </Document>
 
       <div style={styles.pagination}>
-        <button disabled={page <= 1} onClick={() => setPage(page - 1)}>
-          Previous
-        </button>
-
-        <span>
-          Page {page} of {numPages}
-        </span>
-
-        <button disabled={page >= numPages} onClick={() => setPage(page + 1)}>
-          Next
-        </button>
+        <button disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
+        <span>Page {page} of {numPages}</span>
+        <button disabled={page >= numPages} onClick={() => setPage(page + 1)}>Next</button>
       </div>
     </div>
   );
@@ -45,22 +35,17 @@ export default function PdfViewer({ url, onClose }) {
 const styles = {
   wrapper: {
     position: "fixed",
-    top: 0, left: 0,
+    top: 0,
+    left: 0,
     width: "100%",
     height: "100%",
     background: "#000000d0",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    overflow: "scroll",
+    overflow: "auto",
     paddingTop: "20px",
-  },
-  pagination: {
-    marginTop: "10px",
-    color: "white",
-    display: "flex",
-    gap: 20,
-    fontSize: 16,
+    zIndex: 9999,
   },
   closeBtn: {
     background: "red",
@@ -70,5 +55,12 @@ const styles = {
     border: "none",
     marginBottom: 10,
     cursor: "pointer",
-  }
+  },
+  pagination: {
+    marginTop: 10,
+    color: "white",
+    display: "flex",
+    gap: 20,
+    fontSize: 16,
+  },
 };
