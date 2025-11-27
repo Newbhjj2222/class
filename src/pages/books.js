@@ -1,8 +1,11 @@
 import { useState } from "react";
-import PdfViewer from "@/components/PdfViewer";
+import dynamic from "next/dynamic";
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+
+// dynamic import client-side only
+const PdfViewer = dynamic(() => import("@/components/PdfViewer"), { ssr: false });
 
 export async function getServerSideProps() {
   const booksRef = collection(db, "books");
@@ -21,9 +24,8 @@ export default function BooksPage({ books }) {
   const [selectedUrl, setSelectedUrl] = useState(null);
 
   const handleReadBook = (url) => {
-    if (!url) return alert("URL not found");
-
-    const viewUrl = `${url}?download=0`; // avoid forced download
+    if (!url) return alert("Book URL not found.");
+    const viewUrl = `${url}?download=0`; // avoid forced download on Supabase
     setSelectedUrl(viewUrl);
   };
 
@@ -34,21 +36,17 @@ export default function BooksPage({ books }) {
       <div className={styles.bookList}>
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard}>
-            
-            <img
-              src={book.coverUrl}
-              alt={book.title}
-              className={styles.cover}
-            />
+            {book.coverUrl ? (
+              <img src={book.coverUrl} alt={book.title} className={styles.cover} />
+            ) : (
+              <div className={styles.noCover}>No Image</div>
+            )}
 
             <h3 className={styles.bookTitle}>{book.title}</h3>
             <p className={styles.bookAuthor}>By: {book.author}</p>
 
             <div className={styles.actions}>
-              <button
-                className={styles.readBtn}
-                onClick={() => handleReadBook(book.url)}
-              >
+              <button className={styles.readBtn} onClick={() => handleReadBook(book.url)}>
                 Read Book
               </button>
 
