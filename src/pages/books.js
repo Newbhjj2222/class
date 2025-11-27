@@ -24,7 +24,10 @@ export default function BooksPage({ books }) {
       alert("Book URL not found.");
       return;
     }
-    setSelectedUrl(url); // 👉 direct URL stored in Firestore
+
+    // 👉 Supabase: remove forced download
+    const viewUrl = `${url}?download=0`;
+    setSelectedUrl(viewUrl);
   };
 
   const handleClose = () => {
@@ -60,7 +63,11 @@ export default function BooksPage({ books }) {
                 Read Book
               </button>
 
-              <a className={styles.downloadBtn} href={book.url} download>
+              <a
+                className={styles.downloadBtn}
+                href={book.url}
+                download
+              >
                 Download
               </a>
             </div>
@@ -68,7 +75,7 @@ export default function BooksPage({ books }) {
         ))}
       </div>
 
-      {/* Preview */}
+      {/* PDF / Book Preview */}
       {selectedUrl && (
         <div className={styles.pdfWrapper}>
           <iframe
@@ -76,7 +83,7 @@ export default function BooksPage({ books }) {
             width="100%"
             height="90vh"
             style={{ border: "none" }}
-            title="Book Preview"
+            title="Book Viewer"
           ></iframe>
 
           <button className={styles.closePdfBtn} onClick={handleClose}>
