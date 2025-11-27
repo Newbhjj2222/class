@@ -25,7 +25,7 @@ export default function BooksPage({ books }) {
 
   const handleReadBook = (url) => {
     if (!url) return alert("Book URL not found");
-    setSelectedUrl(url); // Google Docs Viewer will handle embedding
+    setSelectedUrl(url); // PDF.js will handle preview
   };
 
   return (
