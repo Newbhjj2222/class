@@ -4,7 +4,7 @@ import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
-// dynamic import client-side only
+// dynamic import client-only
 const PdfViewer = dynamic(() => import("@/components/PdfViewer"), { ssr: false });
 
 export async function getServerSideProps() {
@@ -24,8 +24,8 @@ export default function BooksPage({ books }) {
   const [selectedUrl, setSelectedUrl] = useState(null);
 
   const handleReadBook = (url) => {
-    if (!url) return alert("Book URL not found");
-    setSelectedUrl(url); // PDF.js will handle preview
+    if (!url) return alert("Book URL not found.");
+    setSelectedUrl(url);
   };
 
   return (
