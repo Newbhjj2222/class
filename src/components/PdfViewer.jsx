@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
-// PDF.js worker (CDN, compatible v5.4.394)
+// CDN worker for pdfjs v5.4.394
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export default function PdfViewer({ url, onClose }) {
@@ -12,7 +12,6 @@ export default function PdfViewer({ url, onClose }) {
   const [error, setError] = useState(null);
 
   const onLoadSuccess = ({ numPages }) => setNumPages(numPages);
-
   const onLoadError = (err) => {
     console.error("PDF failed to load:", err);
     setError(err.message || "Unknown error while loading PDF.");
@@ -27,7 +26,7 @@ export default function PdfViewer({ url, onClose }) {
           <h3>Failed to load PDF</h3>
           <p>{error}</p>
           <p>
-            Try opening the PDF in a new tab:
+            Try opening the PDF in a new tab:{" "}
             <a href={url} target="_blank" rel="noopener noreferrer">Open PDF</a>
           </p>
         </div>
