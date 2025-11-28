@@ -1,19 +1,15 @@
-/** @type {import('next').NextConfig} */
+/** next.config.js */
 const nextConfig = {
   reactStrictMode: true,
-
-  webpack(config) {
-    // Allow importing the pdf.worker file correctly
+  webpack: (config) => {
+    // allow importing .mjs from pdfjs-dist (ES modules)
     config.module.rules.push({
-      test: /pdf\.worker\.min\.js$/,
-      type: "asset/resource",
-      generator: {
-        filename: "static/chunks/[name].[hash][ext]",
-      },
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: "javascript/auto",
     });
-
     return config;
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
