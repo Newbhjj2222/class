@@ -1,15 +1,17 @@
-/** next.config.js */
+// next.config.mjs
 const nextConfig = {
   reactStrictMode: true,
+
   webpack: (config) => {
-    // allow importing .mjs from pdfjs-dist (ES modules)
+    // Allow importing .mjs (ES modules) from pdfjs-dist
     config.module.rules.push({
       test: /\.mjs$/,
       include: /node_modules/,
       type: "javascript/auto",
     });
+
     return config;
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
