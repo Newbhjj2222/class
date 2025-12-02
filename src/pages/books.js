@@ -1,4 +1,5 @@
-import { useState } from "react";
+// pages/books.js
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
@@ -21,16 +22,65 @@ export async function getServerSideProps() {
 
 export default function BooksPage({ books }) {
   const [selectedUrl, setSelectedUrl] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadedBooks, setDownloadedBooks] = useState([]);
 
-  const handleReadBook = (url) => {
-    if (!url) return alert("Book URL not found");
-    setSelectedUrl(url);
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("downloadedBooks") || "[]");
+    setDownloadedBooks(saved);
+  }, []);
+
+  const saveDownloaded = (id) => {
+    const updated = [...downloadedBooks, id];
+    setDownloadedBooks(updated);
+    localStorage.setItem("downloadedBooks", JSON.stringify(updated));
+  };
+
+  const autoDownload = async (book) => {
+    try {
+      setDownloading(true);
+      const response = await fetch(book.url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = book.title + ".pdf";
+      a.click();
+
+      saveDownloaded(book.id);
+      setDownloading(false);
+    } catch (error) {
+      setDownloading(false);
+      alert("Failed to download PDF");
+    }
+  };
+
+  const handleCardClick = (book) => {
+    autoDownload(book);
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>📚 All Books</h1>
 
+      {/* TOP SLIDER */}
+      <div className={styles.sliderWrapper}>
+        <div className={styles.slider}>
+          {books.map((book) => (
+            <div
+              key={book.id}
+              className={styles.slideCard}
+              onClick={() => handleCardClick(book)}
+            >
+              <img src={book.coverUrl} alt={book.title} className={styles.slideImage} />
+              <p className={styles.slideTitle}>{book.title}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* LIST BELOW */}
       <div className={styles.bookList}>
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard}>
@@ -46,21 +96,33 @@ export default function BooksPage({ books }) {
             </div>
 
             <div className={styles.actions}>
-              <button className={styles.readBtn} onClick={() => handleReadBook(book.url)}>
-                Read Book
-              </button>
+              {!downloadedBooks.includes(book.id) ? (
+                <button
+                  className={styles.readBtn}
+                  onClick={() => autoDownload(book)}
+                >
+                  {downloading ? "Downloading..." : "Read Book"}
+                </button>
+              ) : (
+                <button
+                  className={styles.openBtn}
+                  onClick={() => setSelectedUrl(book.url)}
+                >
+                  Open
+                </button>
+              )}
 
-              <a className={styles.downloadBtn} href={book.url} download>
-                Download
-              </a>
+              {!downloadedBooks.includes(book.id) && (
+                <a className={styles.downloadBtn} href={book.url} download>
+                  Download
+                </a>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      {selectedUrl && (
-        <PdfViewer url={selectedUrl} onClose={() => setSelectedUrl(null)} />
-      )}
+      {selectedUrl && <PdfViewer url={selectedUrl} onClose={() => setSelectedUrl(null)} />}
     </div>
   );
 }
