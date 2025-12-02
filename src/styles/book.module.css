@@ -1,221 +1,176 @@
-/* ====== General Container ====== */
+/* Root background & foreground using your global variables */
 .container {
-  max-width: 950px;
-  margin: 40px auto;
-  padding: 20px;
-  border-radius: 12px;
-  background-color: var(--background, #fff);
-  color: var(--foreground, #111);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* ====== Titles ====== */
-.title {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 25px;
+  background: var(--background);
   color: var(--foreground);
+  padding: 20px;
+  min-height: 100vh;
 }
 
-.bookAuthor {
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 20px;
   text-align: center;
-  font-size: 1rem;
-  color: #6b7280;
-  margin-bottom: 15px;
 }
 
-/* ====== Book List Grid ====== */
+/* ====================== SLIDER ====================== */
+
+.sliderWrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+  scroll-behavior: smooth;
+}
+
+.sliderWrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.sliderWrapper::-webkit-scrollbar-thumb {
+  background: var(--foreground);
+  border-radius: 20px;
+}
+
+.slider {
+  display: flex;
+  gap: 15px;
+  width: max-content;
+}
+
+.slideCard {
+  min-width: 130px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.slideCard:hover {
+  transform: scale(1.05);
+}
+
+.slideImage {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.slideTitle {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ====================== BOOK LIST ====================== */
+
 .bookList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 20px;
-  justify-content: center;
-  align-items: start;
+  margin-top: 20px;
 }
 
-/* ====== Book Card ====== */
 .bookCard {
-  background-color: var(--background, #fff);
-  color: var(--foreground, #111);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  transition: transform 0.2s ease;
 }
 
 .bookCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
 }
 
-/* ====== Cover Image ====== */
 .cover {
   width: 100%;
-  height: 250px;
+  height: 210px;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  border-radius: 10px;
 }
 
 .noCover {
   width: 100%;
-  height: 250px;
-  background: #f0f0f0;
+  height: 210px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
-  border-radius: 8px;
-  margin-bottom: 10px;
 }
 
-/* ====== Book Title ====== */
-.bookTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--foreground);
-}
-
-/* ====== Buttons & Actions ====== */
-.actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 15px;
-  gap: 10px;
-}
-
-.downloadBtn,
-.readBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background-color: #2563eb;
-  color: #ffffff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.25s ease, transform 0.15s ease;
-  cursor: pointer;
-}
-
-.downloadBtn:hover,
-.readBtn:hover {
-  background-color: #1e40af;
-  transform: translateY(-2px);
-}
-
-/* ====== PDF Reader Section (Iframe) ====== */
-.pdfWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  margin-top: 25px;
-  background-color: var(--background, #fff);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-}
-
-.pdfWrapper iframe {
-  width: 100%;
-  height: 90vh;
-  border: none;
-  border-radius: 8px;
-}
-
-/* ====== Close PDF Button ====== */
-.closePdfBtn {
+.meta {
   margin-top: 10px;
-  background-color: #f44336;
-  color: #fff;
+}
+
+.bookTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+.bookAuthor {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* ====================== BUTTONS ====================== */
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.readBtn,
+.downloadBtn,
+.openBtn {
+  padding: 8px 14px;
+  background: var(--foreground);
+  color: var(--background);
   border: none;
-  padding: 10px 14px;
   border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.25s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease;
+  text-decoration: none;
 }
 
-.closePdfBtn:hover {
-  background-color: #d32f2f;
-  transform: translateY(-1px);
-}
-
-/* ====== Loading / Empty States ====== */
-.loading,
-.noBooks {
-  text-align: center;
-  margin-top: 40px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--foreground);
+.readBtn:hover,
+.downloadBtn:hover,
+.openBtn:hover {
   opacity: 0.8;
 }
 
-/* ====== Responsive Design ====== */
-@media (max-width: 700px) {
-  .container {
-    margin: 20px;
-    padding: 15px;
-  }
-
-  .title {
-    font-size: 1.6rem;
-  }
-
-  .bookCard {
-    padding: 15px;
-  }
-
-  .bookTitle {
-    font-size: 1.1rem;
-  }
-
-  .actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .downloadBtn,
-  .readBtn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .pdfWrapper iframe {
-    height: 70vh;
-  }
+.openBtn {
+  background: #00c853;
+  color: #fff;
 }
 
-/* ====== Dark Mode Smooth Transition ====== */
-@media (prefers-color-scheme: dark) {
-  .bookCard {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+/* ============ RESPONSIVENESS ============ */
+
+@media (max-width: 600px) {
+  .slideCard {
+    min-width: 110px;
+  }
+  
+  .slideImage {
+    height: 140px;
   }
 
-  .downloadBtn,
-  .readBtn {
-    background-color: #3b82f6;
+  .bookList {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  .downloadBtn:hover,
-  .readBtn:hover {
-    background-color: #1d4ed8;
-  }
-
-  .closePdfBtn {
-    background-color: #ef4444;
-  }
-
-  .closePdfBtn:hover {
-    background-color: #b91c1c;
+  .cover {
+    height: 180px;
   }
 }
