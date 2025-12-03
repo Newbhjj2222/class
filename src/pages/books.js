@@ -1,11 +1,8 @@
 // pages/books.js
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
-
-const PdfViewer = dynamic(() => import("@/components/PdfViewer"), { ssr: false });
 
 export async function getServerSideProps() {
   const booksRef = collection(db, "books");
@@ -21,7 +18,6 @@ export async function getServerSideProps() {
 }
 
 export default function BooksPage({ books }) {
-  const [selectedUrl, setSelectedUrl] = useState(null);
   const [downloading, setDownloading] = useState(false);
   const [downloadedBooks, setDownloadedBooks] = useState([]);
 
@@ -56,22 +52,23 @@ export default function BooksPage({ books }) {
     }
   };
 
-  const handleCardClick = (book) => {
-    autoDownload(book);
+  // 👉 OPEN function: ifungura PDF externally, ntifungure muri browser
+  const openExternally = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>📚 All Books</h1>
 
-      {/* TOP SLIDER */}
+      {/* ==================== TOP SLIDER ==================== */}
       <div className={styles.sliderWrapper}>
         <div className={styles.slider}>
           {books.map((book) => (
             <div
               key={book.id}
               className={styles.slideCard}
-              onClick={() => handleCardClick(book)}
+              onClick={() => autoDownload(book)}
             >
               <img src={book.coverUrl} alt={book.title} className={styles.slideImage} />
               <p className={styles.slideTitle}>{book.title}</p>
@@ -80,7 +77,7 @@ export default function BooksPage({ books }) {
         </div>
       </div>
 
-      {/* LIST BELOW */}
+      {/* ==================== LIST BELOW ==================== */}
       <div className={styles.bookList}>
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard}>
@@ -96,6 +93,7 @@ export default function BooksPage({ books }) {
             </div>
 
             <div className={styles.actions}>
+              {/* READ BOOK (DOWNLOAD IF NOT DOWNLOADED) */}
               {!downloadedBooks.includes(book.id) ? (
                 <button
                   className={styles.readBtn}
@@ -104,14 +102,16 @@ export default function BooksPage({ books }) {
                   {downloading ? "Downloading..." : "Read Book"}
                 </button>
               ) : (
+                // OPEN EXTERNALLY
                 <button
                   className={styles.openBtn}
-                  onClick={() => setSelectedUrl(book.url)}
+                  onClick={() => openExternally(book.url)}
                 >
                   Open
                 </button>
               )}
 
+              {/* DOWNLOAD BUTTON – IGUMA IKORA */}
               {!downloadedBooks.includes(book.id) && (
                 <a className={styles.downloadBtn} href={book.url} download>
                   Download
@@ -121,8 +121,6 @@ export default function BooksPage({ books }) {
           </div>
         ))}
       </div>
-
-      {selectedUrl && <PdfViewer url={selectedUrl} onClose={() => setSelectedUrl(null)} />}
     </div>
   );
 }
