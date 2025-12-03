@@ -3,6 +3,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../components/firebase";
 import styles from "../styles/addbook.module.css";
 import { FiBook, FiUpload } from "react-icons/fi";
+import { supabase } from "../components/supabase"; // <-- use your supabase.js
 
 export default function AddBook({ username }) {
   const [title, setTitle] = useState("");
@@ -14,22 +15,16 @@ export default function AddBook({ username }) {
   const CLOUDINARY_UPLOAD_PRESET = "Pdfbooks";
   const CLOUDINARY_CLOUD = "dilowy3fd";
 
-  // 👉 Generic Cloudinary uploader (image or pdf)
-  const uploadCloudinary = async (file, type = "image") => {
+  // 👉 Upload cover image to Cloudinary
+  const uploadCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    // endpoint itandukanye bitewe na file
-    const endpoint =
-      type === "pdf"
-        ? `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`
-        : `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
-
-    const res = await fetch(endpoint, {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+      { method: "POST", body: formData }
+    );
 
     const data = await res.json();
 
@@ -39,6 +34,27 @@ export default function AddBook({ username }) {
     }
 
     return data.secure_url;
+  };
+
+  // 👉 Upload PDF to Supabase Storage
+  const uploadPDFtoSupabase = async (file) => {
+    const fileName = `${Date.now()}-${file.name}`;
+
+    const { data, error } = await supabase.storage
+      .from("books") // <-- bucket name
+      .upload(fileName, file);
+
+    if (error) {
+      console.error(error);
+      throw new Error("Failed to upload PDF to Supabase");
+    }
+
+    // Get public URL for Firestore
+    const { data: publicUrlData } = supabase.storage
+      .from("books")
+      .getPublicUrl(fileName);
+
+    return publicUrlData.publicUrl;
   };
 
   const handlePublish = async (e) => {
@@ -53,17 +69,17 @@ export default function AddBook({ username }) {
     setLoading(true);
 
     try {
-      // 1️⃣ Upload cover image
-      const coverUrl = await uploadCloudinary(coverFile, "image");
+      // 1️⃣ Upload cover to Cloudinary
+      const coverUrl = await uploadCloudinary(coverFile);
 
-      // 2️⃣ Upload PDF file
-      const pdfUrl = await uploadCloudinary(pdfFile, "pdf");
+      // 2️⃣ Upload PDF to Supabase
+      const pdfUrl = await uploadPDFtoSupabase(pdfFile);
 
       // 3️⃣ Save metadata to Firestore
       await addDoc(collection(db, "books"), {
         title,
         coverUrl,
-        pdfUrl,
+        pdfUrl, // Supabase public URL
         author: username,
         createdAt: serverTimestamp(),
       });
@@ -87,7 +103,6 @@ export default function AddBook({ username }) {
       {error && <p className={styles.error}>{error}</p>}
 
       <form className={styles.formWrapper} onSubmit={handlePublish}>
-        
         {/* Title */}
         <div className={styles.inputGroup}>
           <FiBook className={styles.icon} />
