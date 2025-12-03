@@ -20,6 +20,7 @@ export async function getServerSideProps() {
 export default function BooksPage({ books }) {
   const [downloading, setDownloading] = useState(false);
   const [downloadedBooks, setDownloadedBooks] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("downloadedBooks") || "[]");
@@ -52,19 +53,23 @@ export default function BooksPage({ books }) {
     }
   };
 
-  // 👉 OPEN function: ifungura PDF externally, ntifungure muri browser
   const openExternally = (url) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  // 🔎 REAL-TIME SEARCH FILTER
+  const filteredBooks = books.filter((book) =>
+    book.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>📚 All Books</h1>
 
-      {/* ==================== TOP SLIDER ==================== */}
+      {/* ==================== SLIDER ==================== */}
       <div className={styles.sliderWrapper}>
         <div className={styles.slider}>
-          {books.map((book) => (
+          {filteredBooks.map((book) => (
             <div
               key={book.id}
               className={styles.slideCard}
@@ -77,9 +82,20 @@ export default function BooksPage({ books }) {
         </div>
       </div>
 
-      {/* ==================== LIST BELOW ==================== */}
+      {/* ==================== SEARCH BAR ==================== */}
+      <div className={styles.searchContainer}>
+        <input
+          type="text"
+          placeholder="🔍 Shakisha igitabo..."
+          className={styles.searchInput}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {/* ==================== LIST ==================== */}
       <div className={styles.bookList}>
-        {books.map((book) => (
+        {filteredBooks.map((book) => (
           <div key={book.id} className={styles.bookCard}>
             {book.coverUrl ? (
               <img src={book.coverUrl} alt={book.title} className={styles.cover} />
@@ -93,7 +109,6 @@ export default function BooksPage({ books }) {
             </div>
 
             <div className={styles.actions}>
-              {/* READ BOOK (DOWNLOAD IF NOT DOWNLOADED) */}
               {!downloadedBooks.includes(book.id) ? (
                 <button
                   className={styles.readBtn}
@@ -102,7 +117,6 @@ export default function BooksPage({ books }) {
                   {downloading ? "Downloading..." : "Read Book"}
                 </button>
               ) : (
-                // OPEN EXTERNALLY
                 <button
                   className={styles.openBtn}
                   onClick={() => openExternally(book.url)}
@@ -111,7 +125,6 @@ export default function BooksPage({ books }) {
                 </button>
               )}
 
-              {/* DOWNLOAD BUTTON – IGUMA IKORA */}
               {!downloadedBooks.includes(book.id) && (
                 <a className={styles.downloadBtn} href={book.url} download>
                   Download
