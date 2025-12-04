@@ -38,25 +38,30 @@ export default function AddBook({ username }) {
 
   // 👉 Upload PDF to Supabase Storage
   const uploadPDFtoSupabase = async (file) => {
-    const fileName = `${Date.now()}-${file.name}`;
+  const uploadPDFtoSupabase = async (file) => {
+  const fileName = `${Date.now()}-${file.name}`;
 
-    const { data, error } = await supabase.storage
-      .from("books") // <-- bucket name
-      .upload(fileName, file);
+  // ← Hindura bucket name aha
+  const { data, error } = await supabase.storage
+    .from("class") // bucket name ni 'class'
+    .upload(fileName, file);
 
-    if (error) {
-      console.error(error);
-      throw new Error("Failed to upload PDF to Supabase");
-    }
+  if (error) {
+    console.error("Supabase upload error:", error);
+    throw new Error("Failed to upload PDF to Supabase");
+  }
 
-    // Get public URL for Firestore
-    const { data: publicUrlData } = supabase.storage
-      .from("books")
-      .getPublicUrl(fileName);
+  const { data: publicUrlData, error: urlError } = supabase.storage
+    .from("class")
+    .getPublicUrl(fileName);
 
-    return publicUrlData.publicUrl;
-  };
+  if (urlError) {
+    console.error("Supabase getPublicUrl error:", urlError);
+    throw new Error("Failed to get public URL from Supabase");
+  }
 
+  return publicUrlData.publicUrl;
+};
   const handlePublish = async (e) => {
     e.preventDefault();
     setError("");
