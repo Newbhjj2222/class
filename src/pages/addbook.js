@@ -3,7 +3,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../components/firebase";
 import styles from "../styles/addbook.module.css";
 import { FiBook, FiUpload } from "react-icons/fi";
-import { supabase } from "../components/supabase"; // <-- use your supabase.js
+import { supabase } from "../components/supabase"; // Supabase client
 
 export default function AddBook({ username }) {
   const [title, setTitle] = useState("");
@@ -29,39 +29,40 @@ export default function AddBook({ username }) {
     const data = await res.json();
 
     if (!data.secure_url) {
-      console.error(data);
+      console.error("Cloudinary upload failed:", data);
       throw new Error("Cloudinary upload failed");
     }
 
     return data.secure_url;
   };
 
-  // 👉 Upload PDF to Supabase Storage
+  // 👉 Upload PDF to Supabase Storage (bucket `class`)
   const uploadPDFtoSupabase = async (file) => {
-  const uploadPDFtoSupabase = async (file) => {
-  const fileName = `${Date.now()}-${file.name}`;
+    const fileName = `${Date.now()}-${file.name}`;
+    console.log("Uploading PDF file to Supabase:", fileName);
 
-  // ← Hindura bucket name aha
-  const { data, error } = await supabase.storage
-    .from("class") // bucket name ni 'class'
-    .upload(fileName, file);
+    const { data, error } = await supabase.storage
+      .from("class") // bucket name
+      .upload(fileName, file);
 
-  if (error) {
-    console.error("Supabase upload error:", error);
-    throw new Error("Failed to upload PDF to Supabase");
-  }
+    if (error) {
+      console.error("Supabase upload error:", error);
+      throw new Error("Failed to upload PDF to Supabase");
+    }
 
-  const { data: publicUrlData, error: urlError } = supabase.storage
-    .from("class")
-    .getPublicUrl(fileName);
+    const { data: publicUrlData, error: urlError } = supabase.storage
+      .from("class")
+      .getPublicUrl(fileName);
 
-  if (urlError) {
-    console.error("Supabase getPublicUrl error:", urlError);
-    throw new Error("Failed to get public URL from Supabase");
-  }
+    if (urlError) {
+      console.error("Supabase getPublicUrl error:", urlError);
+      throw new Error("Failed to get public URL from Supabase");
+    }
 
-  return publicUrlData.publicUrl;
-};
+    console.log("PDF public URL:", publicUrlData.publicUrl);
+    return publicUrlData.publicUrl;
+  };
+
   const handlePublish = async (e) => {
     e.preventDefault();
     setError("");
@@ -91,11 +92,12 @@ export default function AddBook({ username }) {
 
       alert("Book uploaded successfully!");
 
+      // Reset form
       setTitle("");
       setPdfFile(null);
       setCoverFile(null);
     } catch (err) {
-      console.error(err);
+      console.error("Upload error caught in handlePublish:", err);
       setError("Failed to upload. Please try again.");
     }
 
@@ -147,7 +149,11 @@ export default function AddBook({ username }) {
           </label>
         </div>
 
-        <button className={styles.buttonPrimary} type="submit" disabled={loading}>
+        <button
+          className={styles.buttonPrimary}
+          type="submit"
+          disabled={loading}
+        >
           {loading ? "Uploading..." : "Publish"}
         </button>
       </form>
@@ -155,6 +161,7 @@ export default function AddBook({ username }) {
   );
 }
 
+// Check username from cookies
 export async function getServerSideProps({ req }) {
   const username = req.cookies.username || null;
 
