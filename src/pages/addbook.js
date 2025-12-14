@@ -3,7 +3,13 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../components/firebase";
 import styles from "../styles/addbook.module.css";
 import { FiBook, FiUpload } from "react-icons/fi";
-import { supabase } from "../components/supabase"; // supabase client
+
+/**
+ * NOTE:
+ * - PDF ibikwa muri Firestore nka Base64
+ * - Cover image ikajya muri Cloudinary
+ * - Firestore document limit ≈ 1MB (PDF nto gusa)
+ */
 
 export default function AddBook({ username }) {
   const [title, setTitle] = useState("");
@@ -12,72 +18,58 @@ export default function AddBook({ username }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🔹 Cloudinary config
   const CLOUDINARY_UPLOAD_PRESET = "Pdfbooks";
   const CLOUDINARY_CLOUD = "dilowy3fd";
 
-  // 👉 Upload cover image to Cloudinary
+  // ===============================
+  // Convert File → Base64
+  // ===============================
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file); // includes mime type
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  // ===============================
+  // Upload cover image to Cloudinary
+  // ===============================
   const uploadCloudinary = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
-        { method: "POST", body: formData }
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+
+    if (!data.secure_url) {
+      throw new Error(
+        data?.error?.message || "Failed to upload cover image"
       );
-
-      const data = await res.json();
-
-      if (!data.secure_url) {
-        console.error("Cloudinary upload error:", data);
-        throw new Error("Cloudinary upload failed: " + (data.error?.message || "Unknown error"));
-      }
-
-      return data.secure_url;
-    } catch (err) {
-      console.error("Cloudinary upload exception:", err);
-      throw new Error("Cloudinary upload failed: " + err.message);
     }
+
+    return data.secure_url;
   };
 
-  // 👉 Upload PDF to Supabase Storage (bucket `class`)
-  const uploadPDFtoSupabase = async (file) => {
-    try {
-      const fileName = `${Date.now()}-${file.name}`;
-      console.log("Uploading PDF file to Supabase:", fileName);
-
-      const { data, error } = await supabase.storage
-        .from("class") // bucket name
-        .upload(fileName, file);
-
-      if (error) {
-        console.error("Supabase upload error:", error);
-        throw new Error("Supabase upload failed: " + error.message);
-      }
-
-      const { data: publicUrlData, error: urlError } = supabase.storage
-        .from("class")
-        .getPublicUrl(fileName);
-
-      if (urlError) {
-        console.error("Supabase getPublicUrl error:", urlError);
-        throw new Error("Failed to get public URL from Supabase: " + urlError.message);
-      }
-
-      console.log("PDF public URL:", publicUrlData.publicUrl);
-      return publicUrlData.publicUrl;
-    } catch (err) {
-      console.error("Supabase upload exception:", err);
-      throw new Error(err.message);
-    }
-  };
-
+  // ===============================
+  // Handle submit
+  // ===============================
   const handlePublish = async (e) => {
     e.preventDefault();
     setError("");
+
     if (!title || !pdfFile || !coverFile) {
-      setError("Please upload Title, Cover image, and PDF file.");
+      setError("Please provide Title, Cover image and PDF file.");
       return;
     }
 
@@ -87,15 +79,21 @@ export default function AddBook({ username }) {
       // 1️⃣ Upload cover image
       const coverUrl = await uploadCloudinary(coverFile);
 
-      // 2️⃣ Upload PDF
-      const pdfUrl = await uploadPDFtoSupabase(pdfFile);
+      // 2️⃣ Convert PDF to Base64
+      const pdfBase64 = await fileToBase64(pdfFile);
 
-      // 3️⃣ Save metadata to Firestore
+      // 3️⃣ Save book to Firestore
       await addDoc(collection(db, "books"), {
         title,
-        coverUrl,
-        pdfUrl,
         author: username,
+        coverUrl,
+
+        // PDF stored as Base64
+        pdfBase64,
+        pdfName: pdfFile.name,
+        pdfSize: pdfFile.size,
+        pdfType: pdfFile.type,
+
         createdAt: serverTimestamp(),
       });
 
@@ -106,8 +104,8 @@ export default function AddBook({ username }) {
       setPdfFile(null);
       setCoverFile(null);
     } catch (err) {
-      console.error("Upload failed:", err);
-      setError("Failed to upload: " + err.message);
+      console.error(err);
+      setError(err.message || "Upload failed");
     }
 
     setLoading(false);
@@ -116,6 +114,7 @@ export default function AddBook({ username }) {
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Upload Book</h2>
+
       {error && <p className={styles.error}>{error}</p>}
 
       <form className={styles.formWrapper} onSubmit={handlePublish}>
@@ -132,33 +131,41 @@ export default function AddBook({ username }) {
           />
         </div>
 
-        {/* Cover Image */}
+        {/* Cover image */}
         <div className={styles.inputGroup}>
           <label className={styles.fileLabel}>
-            <FiUpload /> {coverFile ? coverFile.name : "Upload Cover Image"}
+            <FiUpload />
+            {coverFile ? coverFile.name : "Upload Cover Image"}
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setCoverFile(e.target.files[0])}
               className={styles.fileInput}
+              onChange={(e) => setCoverFile(e.target.files[0])}
+              required
             />
           </label>
         </div>
 
-        {/* PDF File */}
+        {/* PDF */}
         <div className={styles.inputGroup}>
           <label className={styles.fileLabel}>
-            <FiUpload /> {pdfFile ? pdfFile.name : "Upload PDF File"}
+            <FiUpload />
+            {pdfFile ? pdfFile.name : "Upload PDF File"}
             <input
               type="file"
               accept="application/pdf"
-              onChange={(e) => setPdfFile(e.target.files[0])}
               className={styles.fileInput}
+              onChange={(e) => setPdfFile(e.target.files[0])}
+              required
             />
           </label>
         </div>
 
-        <button className={styles.buttonPrimary} type="submit" disabled={loading}>
+        <button
+          type="submit"
+          className={styles.buttonPrimary}
+          disabled={loading}
+        >
           {loading ? "Uploading..." : "Publish"}
         </button>
       </form>
@@ -166,13 +173,22 @@ export default function AddBook({ username }) {
   );
 }
 
-// Check username from cookies
+// ===============================
+// Auth check (SSR)
+// ===============================
 export async function getServerSideProps({ req }) {
   const username = req.cookies.username || null;
 
   if (!username) {
-    return { redirect: { destination: "/login", permanent: false } };
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
   }
 
-  return { props: { username } };
-}
+  return {
+    props: { username },
+  };
+    }
