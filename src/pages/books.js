@@ -22,7 +22,11 @@ export default function BooksPage({ books }) {
       <div className={styles.bookList}>
         {books.map((b) => (
           <div key={b.id} className={styles.bookCard}>
-            <img src={b.coverUrl} className={styles.cover} />
+            {b.coverUrl ? (
+              <img src={b.coverUrl} className={styles.cover} />
+            ) : (
+              <div>No cover</div>
+            )}
             <h3>{b.title}</h3>
             <p>{b.author}</p>
 
@@ -34,4 +38,4 @@ export default function BooksPage({ books }) {
       </div>
     </div>
   );
-  }
+    }
