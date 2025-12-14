@@ -1,15 +1,27 @@
 import { useState } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../components/firebase";
 import styles from "../styles/addbook.module.css";
 import { FiBook, FiUpload } from "react-icons/fi";
 
 /**
- * NOTE:
- * - PDF ibikwa muri Firestore nka Base64
- * - Cover image ikajya muri Cloudinary
- * - Firestore document limit ≈ 1MB (PDF nto gusa)
+ * CONFIG
+ * Cloudinary secrets (as provided)
  */
+const CLOUDINARY_UPLOAD_PRESET = "Pdfbooks";
+const CLOUDINARY_CLOUD = "dilowy3fd";
+
+/**
+ * Chunk size (safe for Firestore)
+ * ~400KB per chunk
+ */
+const CHUNK_SIZE = 400_000;
 
 export default function AddBook({ username }) {
   const [title, setTitle] = useState("");
@@ -18,26 +30,32 @@ export default function AddBook({ username }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 Cloudinary config
-  const CLOUDINARY_UPLOAD_PRESET = "Pdfbooks";
-  const CLOUDINARY_CLOUD = "dilowy3fd";
+  // ===============================
+  // File → Base64
+  // ===============================
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
 
   // ===============================
-  // Convert File → Base64
+  // Split Base64 into chunks
   // ===============================
-  const fileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file); // includes mime type
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (err) => reject(err);
-    });
+  const splitBase64 = (base64) => {
+    const chunks = [];
+    for (let i = 0; i < base64.length; i += CHUNK_SIZE) {
+      chunks.push(base64.slice(i, i + CHUNK_SIZE));
+    }
+    return chunks;
   };
 
   // ===============================
-  // Upload cover image to Cloudinary
+  // Upload cover to Cloudinary
   // ===============================
-  const uploadCloudinary = async (file) => {
+  const uploadCoverToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -54,11 +72,29 @@ export default function AddBook({ username }) {
 
     if (!data.secure_url) {
       throw new Error(
-        data?.error?.message || "Failed to upload cover image"
+        data?.error?.message || "Cloudinary upload failed"
       );
     }
 
     return data.secure_url;
+  };
+
+  // ===============================
+  // Save PDF chunks to Firestore
+  // ===============================
+  const savePdfChunks = async (bookId, base64) => {
+    const chunks = splitBase64(base64);
+
+    for (let i = 0; i < chunks.length; i++) {
+      await setDoc(doc(db, "book_chunks", `${bookId}_${i}`), {
+        bookId,
+        index: i,
+        data: chunks[i],
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    return chunks.length;
   };
 
   // ===============================
@@ -69,7 +105,7 @@ export default function AddBook({ username }) {
     setError("");
 
     if (!title || !pdfFile || !coverFile) {
-      setError("Please provide Title, Cover image and PDF file.");
+      setError("Shyiramo title, cover image na PDF");
       return;
     }
 
@@ -77,19 +113,17 @@ export default function AddBook({ username }) {
 
     try {
       // 1️⃣ Upload cover image
-      const coverUrl = await uploadCloudinary(coverFile);
+      const coverUrl = await uploadCoverToCloudinary(coverFile);
 
       // 2️⃣ Convert PDF to Base64
       const pdfBase64 = await fileToBase64(pdfFile);
 
-      // 3️⃣ Save book to Firestore
-      await addDoc(collection(db, "books"), {
+      // 3️⃣ Create book document
+      const bookRef = await addDoc(collection(db, "books"), {
         title,
         author: username,
         coverUrl,
 
-        // PDF stored as Base64
-        pdfBase64,
         pdfName: pdfFile.name,
         pdfSize: pdfFile.size,
         pdfType: pdfFile.type,
@@ -97,9 +131,23 @@ export default function AddBook({ username }) {
         createdAt: serverTimestamp(),
       });
 
-      alert("Book uploaded successfully!");
+      // 4️⃣ Save PDF chunks
+      const totalChunks = await savePdfChunks(
+        bookRef.id,
+        pdfBase64
+      );
 
-      // Reset form
+      // 5️⃣ Update book with chunk info
+      await setDoc(
+        doc(db, "books", bookRef.id),
+        {
+          totalChunks,
+        },
+        { merge: true }
+      );
+
+      alert("Igitabo cyoherejwe neza ✔️");
+
       setTitle("");
       setPdfFile(null);
       setCoverFile(null);
@@ -122,20 +170,20 @@ export default function AddBook({ username }) {
         <div className={styles.inputGroup}>
           <FiBook className={styles.icon} />
           <input
-            className={styles.inputField}
             type="text"
-            placeholder="Book Title"
+            placeholder="Book title"
+            className={styles.inputField}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
         </div>
 
-        {/* Cover image */}
+        {/* Cover */}
         <div className={styles.inputGroup}>
           <label className={styles.fileLabel}>
             <FiUpload />
-            {coverFile ? coverFile.name : "Upload Cover Image"}
+            {coverFile ? coverFile.name : "Upload cover image"}
             <input
               type="file"
               accept="image/*"
@@ -150,7 +198,7 @@ export default function AddBook({ username }) {
         <div className={styles.inputGroup}>
           <label className={styles.fileLabel}>
             <FiUpload />
-            {pdfFile ? pdfFile.name : "Upload PDF File"}
+            {pdfFile ? pdfFile.name : "Upload PDF"}
             <input
               type="file"
               accept="application/pdf"
@@ -174,7 +222,7 @@ export default function AddBook({ username }) {
 }
 
 // ===============================
-// Auth check (SSR)
+// Auth guard
 // ===============================
 export async function getServerSideProps({ req }) {
   const username = req.cookies.username || null;
@@ -191,4 +239,4 @@ export async function getServerSideProps({ req }) {
   return {
     props: { username },
   };
-    }
+  }
