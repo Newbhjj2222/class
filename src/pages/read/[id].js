@@ -7,67 +7,56 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-/**
- * READ BOOK PAGE (SSR 100%)
- * - Reads PDF chunks from Firestore
- * - Rebuilds Base64 on the server
- * - Renders PDF in iframe
- */
-
 export default function ReadBook({ pdfBase64, title }) {
   if (!pdfBase64) {
-    return <p style={{ padding: 20 }}>Book not found.</p>;
+    return <p>Book not found</p>;
   }
 
   return (
-    <div style={{ width: "100%", height: "100vh" }}>
-      <iframe
-        src={pdfBase64}
-        title={title}
-        style={{
-          width: "100%",
-          height: "100%",
-          border: "none",
-        }}
-      />
-    </div>
+    <iframe
+      src={pdfBase64}
+      style={{
+        width: "100%",
+        height: "100vh",
+        border: "none",
+      }}
+      title={title}
+    />
   );
 }
 
 // ===============================
-// SSR
+// SSR – runs on server only
 // ===============================
 export async function getServerSideProps({ params }) {
-  const bookId = params.id;
+  const { id } = params;
 
   try {
-    // 1️⃣ Fetch chunks ordered
     const q = query(
       collection(db, "book_chunks"),
-      where("bookId", "==", bookId),
-      orderBy("index", "asc")
+      where("bookId", "==", id),
+      orderBy("index")
     );
 
-    const snapshot = await getDocs(q);
+    const snap = await getDocs(q);
 
-    if (snapshot.empty) {
+    if (snap.empty) {
       return { notFound: true };
     }
 
-    // 2️⃣ Rebuild Base64
-    let pdfBase64 = "";
-    snapshot.forEach((doc) => {
-      pdfBase64 += doc.data().data;
+    let base64 = "";
+    snap.forEach((doc) => {
+      base64 += doc.data().data;
     });
 
     return {
       props: {
-        pdfBase64,
-        title: bookId,
+        pdfBase64: base64,
+        title: "Read Book",
       },
     };
   } catch (error) {
     console.error("SSR read error:", error);
     return { notFound: true };
   }
-          }
+}
