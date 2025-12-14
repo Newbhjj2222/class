@@ -8,40 +8,40 @@ import {
 } from "firebase/firestore";
 
 /**
- * ================================
- * PAGE COMPONENT (NO CLIENT LOGIC)
- * ================================
+ * READ BOOK PAGE (SSR 100%)
+ * - Reads PDF chunks from Firestore
+ * - Rebuilds Base64 on the server
+ * - Renders PDF in iframe
  */
+
 export default function ReadBook({ pdfBase64, title }) {
   if (!pdfBase64) {
     return <p style={{ padding: 20 }}>Book not found.</p>;
   }
 
   return (
-    <>
+    <div style={{ width: "100%", height: "100vh" }}>
       <iframe
         src={pdfBase64}
         title={title}
         style={{
           width: "100%",
-          height: "100vh",
+          height: "100%",
           border: "none",
         }}
       />
-    </>
+    </div>
   );
 }
 
-/**
- * ================================
- * SERVER-SIDE ONLY
- * ================================
- */
+// ===============================
+// SSR
+// ===============================
 export async function getServerSideProps({ params }) {
   const bookId = params.id;
 
   try {
-    // 1️⃣ Fetch chunks ordered correctly
+    // 1️⃣ Fetch chunks ordered
     const q = query(
       collection(db, "book_chunks"),
       where("bookId", "==", bookId),
@@ -51,44 +51,23 @@ export async function getServerSideProps({ params }) {
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
-      return {
-        notFound: true,
-      };
+      return { notFound: true };
     }
 
-    // 2️⃣ Rebuild Base64 on server
+    // 2️⃣ Rebuild Base64
     let pdfBase64 = "";
     snapshot.forEach((doc) => {
       pdfBase64 += doc.data().data;
     });
 
-    // 3️⃣ Optional: fetch book title (clean UX)
-    let title = "Book Reader";
-    try {
-      const bookSnap = await getDocs(
-        query(
-          collection(db, "books"),
-          where("__name__", "==", bookId)
-        )
-      );
-      if (!bookSnap.empty) {
-        title = bookSnap.docs[0].data().title || title;
-      }
-    } catch (e) {
-      // title optional – ignore errors
-    }
-
     return {
       props: {
         pdfBase64,
-        title,
+        title: bookId,
       },
     };
   } catch (error) {
-    console.error("SSR PDF load failed:", error);
-
-    return {
-      notFound: true,
-    };
+    console.error("SSR read error:", error);
+    return { notFound: true };
   }
-    }
+          }
