@@ -1,8 +1,12 @@
-// pages/books.js
 import { useState, useEffect } from "react";
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+
+/**
+ * This page reads PDF stored as Base64 in Firestore
+ * Field used: book.pdfBase64
+ */
 
 export async function getServerSideProps() {
   const booksRef = collection(db, "books");
@@ -22,42 +26,83 @@ export default function BooksPage({ books }) {
   const [downloadedBooks, setDownloadedBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // ===============================
+  // Load downloaded books
+  // ===============================
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("downloadedBooks") || "[]");
+    const saved = JSON.parse(
+      localStorage.getItem("downloadedBooks") || "[]"
+    );
     setDownloadedBooks(saved);
   }, []);
 
   const saveDownloaded = (id) => {
-    const updated = [...downloadedBooks, id];
+    const updated = [...new Set([...downloadedBooks, id])];
     setDownloadedBooks(updated);
     localStorage.setItem("downloadedBooks", JSON.stringify(updated));
   };
 
-  const autoDownload = async (book) => {
+  // ===============================
+  // Open PDF in browser (Base64)
+  // ===============================
+  const readBook = (book) => {
+    if (!book.pdfBase64) {
+      alert("PDF not found");
+      return;
+    }
+
+    const win = window.open("", "_blank");
+    win.document.write(`
+      <html>
+        <head>
+          <title>${book.title}</title>
+          <style>
+            body, html {
+              margin: 0;
+              padding: 0;
+              height: 100%;
+            }
+            iframe {
+              width: 100%;
+              height: 100%;
+              border: none;
+            }
+          </style>
+        </head>
+        <body>
+          <iframe src="${book.pdfBase64}"></iframe>
+        </body>
+      </html>
+    `);
+
+    saveDownloaded(book.id);
+  };
+
+  // ===============================
+  // Download PDF from Base64
+  // ===============================
+  const downloadBook = async (book) => {
     try {
       setDownloading(true);
-      const response = await fetch(book.url);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
 
       const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = book.title + ".pdf";
+      a.href = book.pdfBase64;
+      a.download = `${book.title}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
 
       saveDownloaded(book.id);
       setDownloading(false);
-    } catch (error) {
+    } catch (err) {
       setDownloading(false);
       alert("Failed to download PDF");
     }
   };
 
-  const openExternally = (url) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  // 🔎 REAL-TIME SEARCH FILTER
+  // ===============================
+  // Search filter
+  // ===============================
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -73,16 +118,20 @@ export default function BooksPage({ books }) {
             <div
               key={book.id}
               className={styles.slideCard}
-              onClick={() => autoDownload(book)}
+              onClick={() => readBook(book)}
             >
-              <img src={book.coverUrl} alt={book.title} className={styles.slideImage} />
+              <img
+                src={book.coverUrl}
+                alt={book.title}
+                className={styles.slideImage}
+              />
               <p className={styles.slideTitle}>{book.title}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ==================== SEARCH BAR ==================== */}
+      {/* ==================== SEARCH ==================== */}
       <div className={styles.searchContainer}>
         <input
           type="text"
@@ -93,12 +142,16 @@ export default function BooksPage({ books }) {
         />
       </div>
 
-      {/* ==================== LIST ==================== */}
+      {/* ==================== BOOK LIST ==================== */}
       <div className={styles.bookList}>
         {filteredBooks.map((book) => (
           <div key={book.id} className={styles.bookCard}>
             {book.coverUrl ? (
-              <img src={book.coverUrl} alt={book.title} className={styles.cover} />
+              <img
+                src={book.coverUrl}
+                alt={book.title}
+                className={styles.cover}
+              />
             ) : (
               <div className={styles.noCover}>No Image</div>
             )}
@@ -109,31 +162,24 @@ export default function BooksPage({ books }) {
             </div>
 
             <div className={styles.actions}>
-              {!downloadedBooks.includes(book.id) ? (
-                <button
-                  className={styles.readBtn}
-                  onClick={() => autoDownload(book)}
-                >
-                  {downloading ? "Downloading..." : "Read Book"}
-                </button>
-              ) : (
-                <button
-                  className={styles.openBtn}
-                  onClick={() => openExternally(book.url)}
-                >
-                  Open
-                </button>
-              )}
+              <button
+                className={styles.readBtn}
+                onClick={() => readBook(book)}
+              >
+                Read Book
+              </button>
 
-              {!downloadedBooks.includes(book.id) && (
-                <a className={styles.downloadBtn} href={book.url} download>
-                  Download
-                </a>
-              )}
+              <button
+                className={styles.downloadBtn}
+                disabled={downloading}
+                onClick={() => downloadBook(book)}
+              >
+                {downloading ? "Downloading..." : "Download"}
+              </button>
             </div>
           </div>
         ))}
       </div>
     </div>
   );
-}
+  }
