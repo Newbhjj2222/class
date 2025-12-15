@@ -6,24 +6,81 @@ export default function AddBook({ username }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ===============================
+  // UPLOAD TO CLOUDINARY (DIRECT)
+  // ===============================
+  async function uploadToCloudinary(file, type = "raw") {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "Pdfbooks"); // ⚠️ preset yawe
+
+    const endpoint =
+      type === "image"
+        ? "https://api.cloudinary.com/v1_1/dilowy3fd/image/upload"
+        : "https://api.cloudinary.com/v1_1/dilowy3fd/raw/upload";
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.secure_url) {
+      throw new Error("Cloudinary upload failed");
+    }
+
+    return data.secure_url;
+  }
+
+  // ===============================
+  // HANDLE SUBMIT
+  // ===============================
   async function handlePublish(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const formData = new FormData(e.target);
-
     try {
-      const res = await fetch("/api/upload-book", {
+      const form = e.target;
+      const title = form.title.value;
+      const coverFile = form.cover.files[0];
+      const pdfFile = form.pdf.files[0];
+
+      if (!title || !coverFile || !pdfFile) {
+        throw new Error("Fill all fields");
+      }
+
+      // 1️⃣ Upload cover image
+      const coverUrl = await uploadToCloudinary(
+        coverFile,
+        "image"
+      );
+
+      // 2️⃣ Upload PDF
+      const pdfUrl = await uploadToCloudinary(pdfFile, "raw");
+
+      // 3️⃣ Save book info to API (JSON only)
+      const res = await fetch("/api/save-book", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          author: username,
+          coverUrl,
+          pdfUrl,
+          pdfName: pdfFile.name,
+          pdfSize: pdfFile.size,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
       alert("Igitabo cyoherejwe neza ✔️");
-      e.target.reset();
+      form.reset();
     } catch (err) {
       setError(err.message || "Upload failed");
     }
@@ -38,21 +95,36 @@ export default function AddBook({ username }) {
       {error && <p className={styles.error}>{error}</p>}
 
       <form onSubmit={handlePublish} className={styles.formWrapper}>
+        {/* TITLE */}
         <div className={styles.inputGroup}>
           <FiBook />
-          <input name="title" placeholder="Book title" required />
+          <input
+            name="title"
+            placeholder="Book title"
+            required
+          />
         </div>
 
-        <input type="hidden" name="author" value={username} />
-
+        {/* COVER */}
         <label className={styles.fileLabel}>
           <FiUpload /> Upload cover image
-          <input type="file" name="cover" accept="image/*" required />
+          <input
+            type="file"
+            name="cover"
+            accept="image/*"
+            required
+          />
         </label>
 
+        {/* PDF */}
         <label className={styles.fileLabel}>
           <FiUpload /> Upload PDF
-          <input type="file" name="pdf" accept="application/pdf" required />
+          <input
+            type="file"
+            name="pdf"
+            accept="application/pdf"
+            required
+          />
         </label>
 
         <button disabled={loading}>
@@ -63,14 +135,20 @@ export default function AddBook({ username }) {
   );
 }
 
+// ===============================
+// SSR AUTH GUARD
+// ===============================
 export async function getServerSideProps({ req }) {
   const username = req.cookies.username || null;
 
   if (!username) {
     return {
-      redirect: { destination: "/login", permanent: false },
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
     };
   }
 
   return { props: { username } };
-    }
+  }
