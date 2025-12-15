@@ -3,9 +3,13 @@ import { v2 as cloudinary } from "cloudinary";
 import { db } from "@/components/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
+// ===============================
+// NEXT CONFIG (VERY IMPORTANT)
+// ===============================
 export const config = {
   api: {
     bodyParser: false,
+    responseLimit: false, // 🔥 prevents "Request Entity Too Large"
   },
 };
 
@@ -26,7 +30,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const form = formidable({ multiples: false });
+  // ✅ formidable config
+  const form = formidable({
+    multiples: false,
+    keepExtensions: true,
+    maxFileSize: 50 * 1024 * 1024, // 50MB
+  });
 
   try {
     const { fields, files } = await new Promise((resolve, reject) => {
@@ -36,10 +45,24 @@ export default async function handler(req, res) {
       });
     });
 
-    const title = fields.title;
-    const author = fields.author;
-    const cover = files.cover?.[0];
-    const pdf = files.pdf?.[0];
+    // ===============================
+    // SAFE FIELD ACCESS
+    // ===============================
+    const title = Array.isArray(fields.title)
+      ? fields.title[0]
+      : fields.title;
+
+    const author = Array.isArray(fields.author)
+      ? fields.author[0]
+      : fields.author;
+
+    const cover = Array.isArray(files.cover)
+      ? files.cover[0]
+      : files.cover;
+
+    const pdf = Array.isArray(files.pdf)
+      ? files.pdf[0]
+      : files.pdf;
 
     if (!title || !author || !cover || !pdf) {
       return res.status(400).json({
@@ -82,14 +105,18 @@ export default async function handler(req, res) {
       createdAt: serverTimestamp(),
     });
 
+    // ✅ ALWAYS RETURN JSON
     return res.status(200).json({
       success: true,
       message: "Book uploaded successfully",
     });
   } catch (error) {
     console.error("UPLOAD ERROR:", error);
+
+    // ✅ return JSON even on error
     return res.status(500).json({
-      error: "Upload failed",
+      success: false,
+      error: error.message || "Upload failed",
     });
   }
 }
