@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",
+    "cloudinary": "^2.8.0",
     "firebase": "^12.6.0",
+    "formidable": "^3.5.4",
     "framer-motion": "^12.23.24",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.553.0",
