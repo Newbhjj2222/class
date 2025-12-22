@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { db } from "../components/firebase";
 import {
   collection,
@@ -15,28 +14,38 @@ import styles from "../styles/poll.module.css";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 /* =========================
-   SSR: FETCH ALL POLLS
+   SSR: FETCH POLLS + USER
 ========================= */
-export async function getServerSideProps() {
-  const snapshot = await getDocs(collection(db, "polls"));
+export async function getServerSideProps({ req }) {
+  const username = req.cookies.username || null;
 
+  if (!username) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+  const snapshot = await getDocs(collection(db, "polls"));
   const polls = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
 
   return {
-    props: { polls },
+    props: {
+      polls,
+      username,
+    },
   };
 }
 
 /* =========================
    PAGE COMPONENT
 ========================= */
-export default function Poll({ polls }) {
-  const router = useRouter();
-
-  const [username, setUsername] = useState(null);
+export default function Poll({ polls, username }) {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
@@ -44,21 +53,11 @@ export default function Poll({ polls }) {
   const [loading, setLoading] = useState(true);
 
   /* =========================
-     GET USER & CHECK ATTEMPT
+     CHECK ATTEMPT
   ========================= */
   useEffect(() => {
-    const user = localStorage.getItem("username");
-
-    // 🔴 NIBA NTA USERNAME → LOGIN
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-
-    setUsername(user);
-
     const checkAttempt = async () => {
-      const attemptRef = doc(db, "pollAttempts", user);
+      const attemptRef = doc(db, "pollAttempts", username);
       const snap = await getDoc(attemptRef);
 
       if (snap.exists()) {
@@ -71,7 +70,7 @@ export default function Poll({ polls }) {
     };
 
     checkAttempt();
-  }, [router]);
+  }, [username]);
 
   /* =========================
      SELECT ANSWER
@@ -92,7 +91,6 @@ export default function Poll({ polls }) {
     const attemptRef = doc(db, "pollAttempts", username);
     const attemptSnap = await getDoc(attemptRef);
 
-    // 🔒 HARD BLOCK
     if (attemptSnap.exists()) {
       setAlreadySubmitted(true);
       setSubmitted(true);
@@ -101,7 +99,6 @@ export default function Poll({ polls }) {
     }
 
     let total = 0;
-
     polls.forEach((poll) => {
       if (answers[poll.id] === poll.correctIndex) {
         total += poll.points;
@@ -112,15 +109,12 @@ export default function Poll({ polls }) {
     setSubmitted(true);
     setAlreadySubmitted(true);
 
-    /* SAVE ATTEMPT */
     await setDoc(attemptRef, {
       username,
-      submitted: true,
       score: total,
       createdAt: serverTimestamp(),
     });
 
-    /* UPDATE NES */
     const depositerRef = doc(db, "depositers", username);
     const depositerSnap = await getDoc(depositerRef);
 
@@ -140,12 +134,7 @@ export default function Poll({ polls }) {
     return <p className={styles.loading}>Loading...</p>;
   }
 
-  /* =========================
-     RENDER
-  ========================= */
   return (
-    <>
-    
     <div className={styles.container}>
       <h1 className={styles.title}>🗳️ Real Question Exam</h1>
       <p className={styles.user}>User: {username}</p>
@@ -159,7 +148,7 @@ export default function Poll({ polls }) {
           {poll.imageUrl && (
             <img
               src={poll.imageUrl}
-              alt="poll image"
+              alt="poll"
               className={styles.image}
             />
           )}
@@ -174,8 +163,7 @@ export default function Poll({ polls }) {
                   key={index}
                   className={`${styles.answer}
                   ${submitted && correct ? styles.correct : ""}
-                  ${submitted && selected && !correct ? styles.wrong : ""}
-                  `}
+                  ${submitted && selected && !correct ? styles.wrong : ""}`}
                   onClick={() => handleSelect(poll.id, index)}
                 >
                   <span>{ans}</span>
@@ -198,13 +186,10 @@ export default function Poll({ polls }) {
 
       {alreadySubmitted && (
         <div className={styles.result}>
-          ✅ Wamaze gukina game
-          <br />
+          ✅ Wamaze gukina game <br />
           🎯 NeS: <strong>{score}</strong>
         </div>
       )}
     </div>
-
-      </>
   );
 }
