@@ -113,7 +113,9 @@
     grid-template-columns: 1fr;
     text-align: center;
   }
-
+  .Footer{
+    margin-left: 0px;
+  }
   .icons {
     justify-content: center;
   }
