@@ -15,43 +15,63 @@ import styles from "./Header.module.css";
 const Header = () => {
   const [open, setOpen] = useState(false);
 
+  const closeMenu = () => setOpen(false);
+
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div className={styles.mobileHeader}>
-        <div className={styles.logo}>YourLogo</div>
-        <div className={styles.menuIcon} onClick={() => setOpen(!open)}>
+      {/* ================= MOBILE HEADER ================= */}
+      <header className={styles.mobileHeader}>
+        <div className={styles.logo}>
+          <span>Your</span>
+          <span>Logo</span>
+        </div>
+
+        <div
+          className={styles.menuIcon}
+          onClick={() => setOpen((prev) => !prev)}
+        >
           {open ? <FaTimes /> : <FaBars />}
         </div>
-      </div>
+      </header>
 
-      {/* Sidebar */}
+      {/* ================= SIDEBAR ================= */}
       <aside className={`${styles.sidebar} ${open ? styles.show : ""}`}>
-        <div className={styles.logo}>YourLogo</div>
+        {/* Logo */}
+        <div className={styles.logo}>
+          <span>Your</span>
+          <span>Logo</span>
+        </div>
 
+        {/* Navigation */}
         <nav className={styles.nav}>
-          <Link href="/" className={styles.link}>
-            <FaHome /> Home
+          <Link href="/" className={styles.link} onClick={closeMenu}>
+            <FaHome />
+            <span>Home</span>
           </Link>
 
-          <Link href="/about" className={styles.link}>
-            <FaInfoCircle /> About
+          <Link href="/about" className={styles.link} onClick={closeMenu}>
+            <FaInfoCircle />
+            <span>About</span>
           </Link>
 
-          <Link href="/contact" className={styles.link}>
-            <FaEnvelope /> Contact
+          <Link href="/contact" className={styles.link} onClick={closeMenu}>
+            <FaEnvelope />
+            <span>Contact</span>
           </Link>
 
-          <Link href="/login" className={styles.link}>
-            <FaSignInAlt /> Login
+          <Link href="/login" className={styles.link} onClick={closeMenu}>
+            <FaSignInAlt />
+            <span>Login</span>
           </Link>
 
-          <Link href="/profile" className={styles.link}>
-            <FaUser /> Profile
+          <Link href="/profile" className={styles.link} onClick={closeMenu}>
+            <FaUser />
+            <span>Profile</span>
           </Link>
 
-          <Link href="/chat" className={styles.link}>
-            <FaComments /> Chat
+          <Link href="/chat" className={styles.link} onClick={closeMenu}>
+            <FaComments />
+            <span>Chat</span>
           </Link>
         </nav>
       </aside>
