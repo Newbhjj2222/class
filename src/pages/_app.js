@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 
 export default function App({ Component, pageProps }) {
   return (
+    <>
     <div className="appLayout">
       {/* Sidebar (Header) */}
       <Header />
@@ -14,7 +15,9 @@ export default function App({ Component, pageProps }) {
       </main>
 
       {/* Footer kuri desktop izajya hejuru ya sidebar */}
-      <Footer />
+      
     </div>
+      <Footer />
+        </>
   );
 }
