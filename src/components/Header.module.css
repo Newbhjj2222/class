@@ -1,80 +1,106 @@
-/* Logo */
-.logo {
-  background: red;
-  color: white;
-  font-size: 22px;
-  font-weight: bold;
-  padding: 12px;
-  text-align: center;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-/* Sidebar */
+/* ===============================
+   SIDEBAR (DESKTOP)
+================================ */
 .sidebar {
   width: 240px;
   height: 100vh;
-  background: #ffffff;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
-  padding: 20px;
+  background-color: var(--background);
+  color: var(--foreground);
   position: fixed;
-  left: 0;
   top: 0;
+  left: 0;
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
   z-index: 1000;
 }
 
-/* Navigation */
+/* ===============================
+   LOGO
+================================ */
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo span:first-child {
+  color: red; /* Your */
+}
+
+.logo span:last-child {
+  color: var(--foreground); /* Logo */
+}
+
+/* ===============================
+   NAVIGATION
+================================ */
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
-  text-decoration: none;
-  color: #333;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
   font-weight: 500;
-  border-radius: 6px;
-  transition: 0.3s;
+  color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .link:hover {
-  background: #f5f5f5;
+  background-color: rgba(255, 0, 0, 0.08);
   color: red;
+  text-decoration: none;
 }
 
-/* Mobile Header */
+/* ===============================
+   MOBILE HEADER
+================================ */
 .mobileHeader {
   display: none;
   height: 65px;
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  padding: 0 20px;
-  align-items: center;
-  justify-content: space-between;
+  background-color: var(--background);
+  color: var(--foreground);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  padding: 0 20px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   z-index: 1100;
 }
 
-.menuIcon {
-  font-size: 24px;
-  cursor: pointer;
+/* Mobile logo */
+.mobileHeader .logo {
+  margin-bottom: 0;
+  font-size: 22px;
 }
 
-/* Responsive */
+/* ===============================
+   MENU ICON
+================================ */
+.menuIcon {
+  font-size: 26px;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+/* ===============================
+   MOBILE SIDEBAR BEHAVIOR
+================================ */
 @media (max-width: 900px) {
   .sidebar {
     left: -100%;
-    transition: 0.3s;
+    transition: left 0.3s ease;
   }
 
   .show {
