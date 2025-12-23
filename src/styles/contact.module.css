@@ -99,7 +99,9 @@
   .title {
     font-size: 1.8rem;
   }
-
+.container {
+  margin-left: 0px;
+}
   .form {
     padding: 20px;
   }
