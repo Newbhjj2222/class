@@ -80,6 +80,7 @@ export default function Profile({ userDataServer }) {
   };
 
   return (
+    <>
     <div className={styles.container}>
       <h2 className={styles.title}>Profile</h2>
 
@@ -194,6 +195,7 @@ export default function Profile({ userDataServer }) {
         </button>
       </div>
     </div>
+                  </>
   );
 }
 
