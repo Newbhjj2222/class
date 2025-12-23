@@ -6,6 +6,7 @@
   background-color: var(--background);
   color: var(--foreground);
   position: fixed;
+  height: auto;
   top: 0;
   left: 0;
   padding: 20px;
