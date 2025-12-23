@@ -122,7 +122,9 @@
   .title {
     font-size: 1.4rem;
   }
-
+.container {
+  margin-left: 0px;
+}
   .card {
     padding: 15px;
   }
