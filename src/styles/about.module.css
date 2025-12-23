@@ -100,6 +100,9 @@
   .text {
     font-size: 0.95rem;
   }
+  .container{
+    margin-left: 0px;
+  }
   .icon {
     font-size: 24px;
   }
