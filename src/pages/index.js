@@ -7,7 +7,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import Header from " @/components/Header";
+import Header from "@/components/Header";
 export async function getServerSideProps() {
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
