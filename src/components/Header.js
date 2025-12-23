@@ -40,7 +40,7 @@ const Header = () => {
           <Link href="/About" className={styles.link}><FaInfoCircle /> About</Link>
           <Link href="/Contact" className={styles.link}><FaEnvelope /> Contact</Link>
           <Link href="/login" className={styles.link}><FaSignInAlt /> Login</Link>
-          <Link href="/poll" className={styles.link}><FaUser /> quiz partol</Link>
+          <Link href="/poly" className={styles.link}><FaUser /> quiz partol</Link>
           <Link href="/profile" className={styles.link}><FaUser /> Profile</Link>
           
         </nav>
