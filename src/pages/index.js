@@ -7,7 +7,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-
+import Header from " @/components/Header";
 export async function getServerSideProps() {
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
@@ -77,6 +77,8 @@ export default function BooksPage({ books }) {
   };
 
   return (
+    <>
+    <Header />
     <div className={styles.container}>
       <h1>📚 Books</h1>
 
@@ -100,5 +102,6 @@ export default function BooksPage({ books }) {
         ))}
       </div>
     </div>
+              </>
   );
   }
