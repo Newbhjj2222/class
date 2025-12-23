@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
-/* Root variables */
+/* ================================
+   ROOT VARIABLES
+================================= */
 :root {
   --background: #ffffff; /* White background */
   --foreground: #171717; /* Black foreground */
 }
 
-/* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a; /* Dark background */
@@ -14,7 +15,9 @@
   }
 }
 
-/* Body styling */
+/* ================================
+   BODY STYLING
+================================= */
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -23,9 +26,30 @@ body {
   padding: 0;
   line-height: 1.6;
   transition: background-color 0.3s, color 0.3s;
+
+  /* =============================
+     DISABLE TEXT SELECTION
+  ============================= */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* =============================
+     DISABLE ZOOM
+  ============================= */
+  touch-action: pan-x pan-y;
+  overscroll-behavior: none;
+}
+html {
+  /* Disable pinch zoom in mobile */
+  touch-action: manipulation;
+  overflow-x: hidden;
 }
 
-/* Links */
+/* ================================
+   LINKS
+================================= */
 a {
   color: #2563eb; /* Tailwind blue-600 */
   text-decoration: none;
@@ -35,14 +59,26 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Headings */
+/* ================================
+   HEADINGS
+================================= */
 h1, h2, h3, h4, h5, h6 {
   color: var(--foreground);
   margin: 0 0 10px 0;
 }
 
-/* Paragraphs */
+/* ================================
+   PARAGRAPHS
+================================= */
 p {
   color: var(--foreground);
   margin: 0 0 10px 0;
+}
+
+/* ================================
+   UNIVERSAL ELEMENT RESET
+================================= */
+* {
+  box-sizing: border-box;
+  outline: none;
 }
