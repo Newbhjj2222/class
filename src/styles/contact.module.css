@@ -1,6 +1,7 @@
 .container {
   max-width: 650px;
-  margin: 70 auto;
+  margin: 70px auto;
+  margin-left: 241px;
   padding: 40px 20px;
   text-align: center;
 }
