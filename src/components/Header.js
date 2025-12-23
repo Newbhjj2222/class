@@ -37,9 +37,10 @@ const Header = () => {
         {/* Sidebar content ifata space isigaye */}
         <nav className={`${styles.nav} ${styles.sidebarContent}`}>
           <Link href="/" className={styles.link}><FaHome /> Home</Link>
-          <Link href="/about" className={styles.link}><FaInfoCircle /> About</Link>
-          <Link href="/contact" className={styles.link}><FaEnvelope /> Contact</Link>
+          <Link href="/About" className={styles.link}><FaInfoCircle /> About</Link>
+          <Link href="/Contact" className={styles.link}><FaEnvelope /> Contact</Link>
           <Link href="/login" className={styles.link}><FaSignInAlt /> Login</Link>
+          <Link href="/poll" className={styles.link}><FaUser /> quiz partol</Link>
           <Link href="/profile" className={styles.link}><FaUser /> Profile</Link>
           
         </nav>
