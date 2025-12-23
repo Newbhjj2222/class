@@ -3,6 +3,7 @@
   background: var(--background);
   color: var(--foreground);
   padding: 20px;
+  margin-left: 241px;
   min-height: 100vh;
 }
 
@@ -180,7 +181,9 @@
   .slideCard {
     min-width: 110px;
   }
-  
+  .container{
+    margin-left: 0;
+  }
   .slideImage {
     height: 140px;
   }
