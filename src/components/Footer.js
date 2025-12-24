@@ -28,9 +28,9 @@ const Footer = () => {
         <div className={styles.links}>
           <h4>Quick Links</h4>
           <Link href="/">Home</Link>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
-          <Link href="/chat">Chat</Link>
+          <Link href="/About">About</Link>
+          <Link href="/Contact">Contact</Link>
+          <Link href="/poly">Quick</Link>
         </div>
 
         {/* Social */}
