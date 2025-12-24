@@ -18,7 +18,11 @@ export default function IncludeLesson() {
 
       <main
         id="main"
-        className="min-h-screen bg-white text-gray-900 p-6 max-w-4xl mx-auto"
+        className="min-h-screen p-6 max-w-4xl mx-auto"
+        style={{
+          backgroundColor: "var(--background)",
+          color: "var(--foreground)"
+        }}
       >
         {/* TITLE */}
         <h1 className="text-3xl font-bold mb-4">
@@ -31,10 +35,7 @@ export default function IncludeLesson() {
         </p>
 
         {/* AUDIO SECTION */}
-        <section
-          aria-labelledby="audio-heading"
-          className="mb-10"
-        >
+        <section aria-labelledby="audio-heading" className="mb-10">
           <h2 id="audio-heading" className="text-2xl font-semibold mb-2">
             🔊 Audio y'isomo
           </h2>
@@ -50,10 +51,7 @@ export default function IncludeLesson() {
         </section>
 
         {/* TEXT SECTION */}
-        <section
-          aria-labelledby="text-heading"
-          className="mb-10"
-        >
+        <section aria-labelledby="text-heading" className="mb-10">
           <h2 id="text-heading" className="text-2xl font-semibold mb-2">
             📝 Inyandiko y'isomo
           </h2>
@@ -71,10 +69,7 @@ export default function IncludeLesson() {
         </section>
 
         {/* VIDEO SECTION */}
-        <section
-          aria-labelledby="video-heading"
-          className="mb-10"
-        >
+        <section aria-labelledby="video-heading" className="mb-10">
           <h2 id="video-heading" className="text-2xl font-semibold mb-2">
             🎥 Video y'isomo (ifite subtitles)
           </h2>
@@ -101,10 +96,7 @@ export default function IncludeLesson() {
         </section>
 
         {/* SIGN LANGUAGE (OPTIONAL) */}
-        <section
-          aria-labelledby="sign-heading"
-          className="mb-10"
-        >
+        <section aria-labelledby="sign-heading" className="mb-10">
           <h2 id="sign-heading" className="text-2xl font-semibold mb-2">
             🤟 Sign Language
           </h2>
@@ -116,15 +108,11 @@ export default function IncludeLesson() {
 
         {/* NAVIGATION */}
         <nav className="flex justify-between mt-12">
-          <button
-            className="px-6 py-3 bg-gray-200 rounded focus:outline-none focus:ring-4 focus:ring-blue-500"
-          >
+          <button className="px-6 py-3 bg-gray-200 rounded focus:outline-none focus:ring-4 focus:ring-blue-500">
             ⬅️ Isomo ribanza
           </button>
 
-          <button
-            className="px-6 py-3 bg-blue-600 text-white rounded focus:outline-none focus:ring-4 focus:ring-blue-500"
-          >
+          <button className="px-6 py-3 bg-blue-600 text-white rounded focus:outline-none focus:ring-4 focus:ring-blue-500">
             Isomo rikurikira ➡️
           </button>
         </nav>
