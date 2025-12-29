@@ -20,10 +20,16 @@ export async function getServerSideProps() {
 }
 
 export default function BooksPage({ books }) {
-  const handleRead = (book) => {
-    // Fungura PDF kuri InfiniteFree index.php
-    const infiniteFreeUrl = `https://bmmm.ct.ws/index.php?file=${encodeURIComponent(book.id)}.pdf`;
-    window.open(infiniteFreeUrl, "_blank");
+  const handleDownload = (book) => {
+    const fileUrl = `https://bmmm.ct.ws/index.php?file=${encodeURIComponent(book.id)}.pdf`;
+
+    // Kora download
+    const a = document.createElement("a");
+    a.href = fileUrl;
+    a.download = book.title + ".pdf"; // izina rishya rya file
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   return (
@@ -36,8 +42,8 @@ export default function BooksPage({ books }) {
             {b.coverUrl && <img src={b.coverUrl} alt={b.title} className={styles.cover} />}
             <h3>{b.title}</h3>
             <p>{b.author}</p>
-            <button className={styles.readBtn} onClick={() => handleRead(b)}>
-              Read Book
+            <button className={styles.readBtn} onClick={() => handleDownload(b)}>
+              Download
             </button>
           </div>
         ))}
