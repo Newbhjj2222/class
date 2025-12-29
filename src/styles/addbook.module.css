@@ -1,98 +1,164 @@
 .container {
-  max-width: 500px;
-  margin: 50px auto;
-  padding: 30px;
-  border-radius: 12px;
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 32px;
+  border-radius: 14px;
   background-color: var(--background);
   color: var(--foreground);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  transition: background-color 0.3s, color 0.3s;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
 }
 
 .title {
   text-align: center;
   font-size: 2rem;
-  margin-bottom: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
 }
 
+/* =====================
+   FORM
+===================== */
 .formWrapper {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 }
 
+/* =====================
+   INPUT GROUP
+===================== */
 .inputGroup {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 12px 14px;
+  border-radius: 10px;
 }
 
-.icon {
-  color: #2563eb;
+.inputGroup svg {
   font-size: 1.2rem;
+  color: #2563eb;
+  flex-shrink: 0;
 }
 
-.inputField {
+.inputGroup input {
   flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 1rem;
+  background: transparent;
+  border: none;
   outline: none;
+  font-size: 1rem;
+  color: inherit;
 }
 
-.inputField:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 5px rgba(37,99,235,0.3);
-}
-
+/* =====================
+   FILE UPLOAD
+===================== */
 .fileLabel {
   display: flex;
   align-items: center;
+  gap: 10px;
   cursor: pointer;
-  gap: 5px;
   font-weight: 600;
   color: #2563eb;
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.08);
+  transition: background 0.2s ease;
 }
 
-.fileInput {
+.fileLabel:hover {
+  background: rgba(37, 99, 235, 0.15);
+}
+
+.fileLabel input {
   display: none;
 }
 
-.buttonPrimary {
+/* =====================
+   TYPE SWITCH (PDF / URL)
+===================== */
+.typeSwitch {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
   padding: 12px;
-  border-radius: 8px;
-  border: none;
-  background-color: #2563eb;
-  color: #fff;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.typeSwitch label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
 }
 
-.buttonPrimary:hover {
-  background-color: #1e40af;
+.typeSwitch input {
+  accent-color: #2563eb;
+  cursor: pointer;
 }
 
+/* =====================
+   BUTTON
+===================== */
+button {
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =====================
+   ERROR
+===================== */
 .error {
   color: #dc2626;
   font-weight: 600;
   text-align: center;
 }
 
-@media (max-width: 500px) {
+/* =====================
+   MOBILE RESPONSIVE
+===================== */
+@media (max-width: 600px) {
   .container {
-    max-width: 90%;
-    padding: 20px;
+    margin: 30px 12px;
+    padding: 22px;
   }
 
-  .inputField {
-    font-size: 0.95rem;
-    padding: 8px;
+  .title {
+    font-size: 1.6rem;
   }
 
-  .buttonPrimary {
+  .inputGroup {
+    padding: 10px 12px;
+  }
+
+  button {
     font-size: 0.95rem;
-    padding: 10px;
+    padding: 12px;
+  }
+
+  .typeSwitch {
+    flex-direction: column;
+    gap: 10px;
   }
 }
