@@ -27,7 +27,7 @@ export default function BooksPage({ books }) {
     } else {
       // 📄 PDF BOOK → PHP VIEWER
       window.open(
-        `https://yourdomain.com/view.php?file=${encodeURIComponent(
+        `https://bmmm.ct.ws/?file=${encodeURIComponent(
           book.bookUrl
         )}`,
         "_blank"
