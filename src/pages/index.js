@@ -7,13 +7,13 @@ export async function getServerSideProps() {
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
 
-  // Metadata gusa, nta PDF iri muri Next.js
   const books = snap.docs.map((d) => ({
     id: d.id,
     title: d.data().title,
     author: d.data().author,
     coverUrl: d.data().coverUrl,
     bookType: d.data().bookType || "pdf", // pdf cyangwa url
+    bookUrl: d.data().bookUrl // URL ya PDF cyangwa URL
   }));
 
   return { props: { books } };
@@ -21,11 +21,10 @@ export async function getServerSideProps() {
 
 export default function BooksPage({ books }) {
   const handleDownload = (book) => {
-    const fileUrl = `https://bmmm.ct.ws/index.php?file=${encodeURIComponent(book.id)}.pdf`;
+    if (!book.bookUrl) return alert("Book URL ntibonetse!");
 
-    // Kora download
     const a = document.createElement("a");
-    a.href = fileUrl;
+    a.href = book.bookUrl;
     a.download = book.title + ".pdf"; // izina rishya rya file
     document.body.appendChild(a);
     a.click();
