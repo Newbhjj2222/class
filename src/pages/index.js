@@ -1,11 +1,6 @@
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
-import {
-  collection,
-  getDocs,
-  orderBy,
-  query,
-} from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 
 export async function getServerSideProps() {
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
@@ -21,18 +16,16 @@ export async function getServerSideProps() {
 
 export default function BooksPage({ books }) {
   const handleRead = (book) => {
-    if (book.bookType === "url") {
-      // 🔗 URL BOOK
-      window.open(book.bookUrl, "_blank");
-    } else {
-      // 📄 PDF BOOK → PHP VIEWER
-      window.open(
-        `https://bmmm.ct.ws/?file=${encodeURIComponent(
-          book.bookUrl
-        )}`,
-        "_blank"
-      );
+    // Fungura PDF cyangwa URL yose muri tab nshya
+    // book.bookUrl igomba kuba:
+    // 🔹 URL ya PHP server: https://bmmm.ct.ws/index.php?file=mybook.pdf
+    // 🔹 Cyangwa URL ya Cloudinary / Firebase
+    if (!book.bookUrl) {
+      alert("Book URL ntibonetse!");
+      return;
     }
+
+    window.open(book.bookUrl, "_blank");
   };
 
   return (
