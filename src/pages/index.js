@@ -5,8 +5,8 @@ import {
   getDocs,
   orderBy,
   query,
-  where,
 } from "firebase/firestore";
+
 export async function getServerSideProps() {
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
@@ -20,88 +20,48 @@ export async function getServerSideProps() {
 }
 
 export default function BooksPage({ books }) {
-  // ===============================
-  // READ & DOWNLOAD BOOK
-  // ===============================
-  const handleRead = async (book) => {
-    try {
-      // 1️⃣ Fetch chunks
-      const q = query(
-        collection(db, "book_chunks"),
-        where("bookId", "==", book.id)
+  const handleRead = (book) => {
+    if (book.bookType === "url") {
+      // 🔗 URL BOOK
+      window.open(book.bookUrl, "_blank");
+    } else {
+      // 📄 PDF BOOK → PHP VIEWER
+      window.open(
+        `https://yourdomain.com/view.php?file=${encodeURIComponent(
+          book.bookUrl
+        )}`,
+        "_blank"
       );
-
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
-        alert("PDF ntibonetse");
-        return;
-      }
-
-      // 2️⃣ Sort chunks
-      const chunks = snap.docs
-        .map((d) => d.data())
-        .sort((a, b) => a.index - b.index);
-
-      // 3️⃣ Combine base64
-      const base64 = chunks.map((c) => c.data).join("");
-
-      // 4️⃣ Base64 → Blob
-      const byteString = atob(base64.split(",")[1]);
-      const mime = base64.match(/data:(.*?);/)[1];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-
-      const blob = new Blob([ab], { type: mime });
-
-      // 5️⃣ Download + open
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = book.pdfName || "book.pdf";
-      a.target = "_blank";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      alert("Habaye ikibazo mu gufungura igitabo");
     }
   };
 
   return (
-    <>
-    
     <div className={styles.container}>
-      <h1>📚 Books</h1>
+      <h1 className={styles.title}>📚 Books</h1>
 
       <div className={styles.bookList}>
         {books.map((b) => (
           <div key={b.id} className={styles.bookCard}>
             {b.coverUrl && (
-              <img src={b.coverUrl} className={styles.cover} />
+              <img
+                src={b.coverUrl}
+                alt={b.title}
+                className={styles.cover}
+              />
             )}
 
             <h3>{b.title}</h3>
-            <p>{b.author}</p>
+            <p className={styles.author}>{b.author}</p>
 
             <button
               className={styles.readBtn}
               onClick={() => handleRead(b)}
             >
-              Read
+              Read more
             </button>
           </div>
         ))}
       </div>
     </div>
-          
-              </>
   );
-  }
+}
