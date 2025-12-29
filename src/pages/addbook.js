@@ -1,18 +1,20 @@
+
 import styles from "../styles/addbook.module.css";
-import { FiBook, FiUpload } from "react-icons/fi";
+import { FiBook, FiUpload, FiLink } from "react-icons/fi";
 import { useState } from "react";
 
 export default function AddBook({ username }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [bookType, setBookType] = useState("pdf"); // pdf | url
 
   // ===============================
-  // UPLOAD TO CLOUDINARY (DIRECT)
+  // UPLOAD TO CLOUDINARY
   // ===============================
   async function uploadToCloudinary(file, type = "raw") {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "Pdfbooks"); // ⚠️ preset yawe
+    formData.append("upload_preset", "Pdfbooks");
 
     const endpoint =
       type === "image"
@@ -25,7 +27,6 @@ export default function AddBook({ username }) {
     });
 
     const data = await res.json();
-
     if (!res.ok || !data.secure_url) {
       throw new Error("Cloudinary upload failed");
     }
@@ -45,34 +46,43 @@ export default function AddBook({ username }) {
       const form = e.target;
       const title = form.title.value;
       const coverFile = form.cover.files[0];
-      const pdfFile = form.pdf.files[0];
 
-      if (!title || !coverFile || !pdfFile) {
-        throw new Error("Fill all fields");
+      if (!title || !coverFile) {
+        throw new Error("Fill all required fields");
       }
 
-      // 1️⃣ Upload cover image
-      const coverUrl = await uploadToCloudinary(
-        coverFile,
-        "image"
-      );
+      // 1️⃣ Upload cover
+      const coverUrl = await uploadToCloudinary(coverFile, "image");
 
-      // 2️⃣ Upload PDF
-      const pdfUrl = await uploadToCloudinary(pdfFile, "raw");
+      let bookUrl = "";
+      let bookName = "";
+      let bookSize = 0;
 
-      // 3️⃣ Save book info to API (JSON only)
+      // 2️⃣ PDF cyangwa URL
+      if (bookType === "pdf") {
+        const pdfFile = form.pdf.files[0];
+        if (!pdfFile) throw new Error("Upload PDF file");
+
+        bookUrl = await uploadToCloudinary(pdfFile, "raw");
+        bookName = pdfFile.name;
+        bookSize = pdfFile.size;
+      } else {
+        bookUrl = form.bookUrl.value;
+        if (!bookUrl) throw new Error("Shyiramo Book URL");
+      }
+
+      // 3️⃣ Save to API
       const res = await fetch("/api/save-book", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           author: username,
           coverUrl,
-          pdfUrl,
-          pdfName: pdfFile.name,
-          pdfSize: pdfFile.size,
+          bookUrl,
+          bookType, // pdf | url
+          bookName,
+          bookSize,
         }),
       });
 
@@ -98,34 +108,57 @@ export default function AddBook({ username }) {
         {/* TITLE */}
         <div className={styles.inputGroup}>
           <FiBook />
-          <input
-            name="title"
-            placeholder="Book title"
-            required
-          />
+          <input name="title" placeholder="Book title" required />
         </div>
 
         {/* COVER */}
         <label className={styles.fileLabel}>
           <FiUpload /> Upload cover image
-          <input
-            type="file"
-            name="cover"
-            accept="image/*"
-            required
-          />
+          <input type="file" name="cover" accept="image/*" required />
         </label>
 
+        {/* TYPE */}
+        <div className={styles.typeSwitch}>
+          <label>
+            <input
+              type="radio"
+              value="pdf"
+              checked={bookType === "pdf"}
+              onChange={() => setBookType("pdf")}
+            />
+            PDF
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              value="url"
+              checked={bookType === "url"}
+              onChange={() => setBookType("url")}
+            />
+            URL
+          </label>
+        </div>
+
         {/* PDF */}
-        <label className={styles.fileLabel}>
-          <FiUpload /> Upload PDF
-          <input
-            type="file"
-            name="pdf"
-            accept="application/pdf"
-            required
-          />
-        </label>
+        {bookType === "pdf" && (
+          <label className={styles.fileLabel}>
+            <FiUpload /> Upload PDF
+            <input type="file" name="pdf" accept="application/pdf" />
+          </label>
+        )}
+
+        {/* URL */}
+        {bookType === "url" && (
+          <div className={styles.inputGroup}>
+            <FiLink />
+            <input
+              name="bookUrl"
+              placeholder="https://example.com/book"
+              type="url"
+            />
+          </div>
+        )}
 
         <button disabled={loading}>
           {loading ? "Uploading..." : "Publish"}
@@ -151,4 +184,4 @@ export async function getServerSideProps({ req }) {
   }
 
   return { props: { username } };
-  }
+}
