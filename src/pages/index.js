@@ -1,3 +1,4 @@
+
 import styles from "@/styles/book.module.css";
 import { db } from "@/components/firebase";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
@@ -6,9 +7,13 @@ export async function getServerSideProps() {
   const q = query(collection(db, "books"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
 
+  // Metadata gusa, nta PDF iri muri Next.js
   const books = snap.docs.map((d) => ({
     id: d.id,
-    ...d.data(),
+    title: d.data().title,
+    author: d.data().author,
+    coverUrl: d.data().coverUrl,
+    bookType: d.data().bookType || "pdf", // pdf cyangwa url
   }));
 
   return { props: { books } };
@@ -16,16 +21,9 @@ export async function getServerSideProps() {
 
 export default function BooksPage({ books }) {
   const handleRead = (book) => {
-    // Fungura PDF cyangwa URL yose muri tab nshya
-    // book.bookUrl igomba kuba:
-    // 🔹 URL ya PHP server: https://bmmm.ct.ws/index.php?file=mybook.pdf
-    // 🔹 Cyangwa URL ya Cloudinary / Firebase
-    if (!book.bookUrl) {
-      alert("Book URL ntibonetse!");
-      return;
-    }
-
-    window.open(book.bookUrl, "_blank");
+    // Fungura PDF kuri InfiniteFree index.php
+    const infiniteFreeUrl = `https://bmmm.ct.ws/index.php?file=${encodeURIComponent(book.id)}.pdf`;
+    window.open(infiniteFreeUrl, "_blank");
   };
 
   return (
@@ -35,22 +33,11 @@ export default function BooksPage({ books }) {
       <div className={styles.bookList}>
         {books.map((b) => (
           <div key={b.id} className={styles.bookCard}>
-            {b.coverUrl && (
-              <img
-                src={b.coverUrl}
-                alt={b.title}
-                className={styles.cover}
-              />
-            )}
-
+            {b.coverUrl && <img src={b.coverUrl} alt={b.title} className={styles.cover} />}
             <h3>{b.title}</h3>
-            <p className={styles.author}>{b.author}</p>
-
-            <button
-              className={styles.readBtn}
-              onClick={() => handleRead(b)}
-            >
-              Read more
+            <p>{b.author}</p>
+            <button className={styles.readBtn} onClick={() => handleRead(b)}>
+              Read Book
             </button>
           </div>
         ))}
