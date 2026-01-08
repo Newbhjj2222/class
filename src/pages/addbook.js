@@ -1,6 +1,8 @@
 import styles from "../styles/addbook.module.css";
 import { FiBook, FiUpload, FiLink } from "react-icons/fi";
 import { useState } from "react";
+import { db } from "../components/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function AddBook({ username }) {
   const [loading, setLoading] = useState(false);
@@ -25,21 +27,16 @@ export default function AddBook({ username }) {
       body: formData,
     });
 
-    if (!res.ok) {
-      throw new Error("Cloudinary upload failed");
-    }
+    if (!res.ok) throw new Error("Cloudinary upload failed");
 
     const data = await res.json();
-
-    if (!data.secure_url) {
-      throw new Error("No file URL returned");
-    }
+    if (!data.secure_url) throw new Error("No URL returned");
 
     return data.secure_url;
   }
 
   // ===============================
-  // HANDLE SUBMIT (NO API)
+  // HANDLE SUBMIT
   // ===============================
   async function handlePublish(e) {
     e.preventDefault();
@@ -78,11 +75,8 @@ export default function AddBook({ username }) {
         bookSize = 0;
       }
 
-      // 3️⃣ Save locally (localStorage)
-      const stored = JSON.parse(localStorage.getItem("books") || "[]");
-
-      stored.push({
-        id: Date.now(),
+      // 3️⃣ Save to Firestore
+      await addDoc(collection(db, "books"), {
         title,
         author: username,
         coverUrl,
@@ -90,12 +84,10 @@ export default function AddBook({ username }) {
         bookType,
         bookName,
         bookSize,
-        createdAt: new Date().toISOString(),
+        createdAt: serverTimestamp(),
       });
 
-      localStorage.setItem("books", JSON.stringify(stored));
-
-      alert("Igitabo cyoherejwe neza ✔️");
+      alert("Igitabo cyabitswe neza ✔️");
       form.reset();
       setBookType("pdf");
     } catch (err) {
