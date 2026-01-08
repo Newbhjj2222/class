@@ -1,4 +1,6 @@
-/* Root background & foreground using your global variables */
+/* ======================
+   ROOT CONTAINER
+====================== */
 .container {
   background: var(--background);
   color: var(--foreground);
@@ -10,31 +12,52 @@
 .title {
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: center;
 }
+
+/* ======================
+   SEARCH BAR
+====================== */
 .searchContainer {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  margin: 20px 0 30px;
 }
 
 .searchInput {
-  width: 90%;
+  width: 100%;
+  max-width: 420px;
   padding: 12px 16px;
-  border-radius: 8px;
-  border: 2px solid #ddd;
-  font-size: 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  font-size: 15px;
   outline: none;
-  transition: 0.2s;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--foreground);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .searchInput:focus {
-  border-color: #0070f3;
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
 }
-/* ====================== SLIDER ====================== */
 
+.noResult {
+  text-align: center;
+  opacity: 0.7;
+  margin-top: 40px;
+  font-size: 0.95rem;
+}
+
+/* ======================
+   SLIDER
+====================== */
 .sliderWrapper {
   width: 100%;
   overflow-x: auto;
@@ -86,8 +109,9 @@
   font-weight: 600;
 }
 
-/* ====================== BOOK LIST ====================== */
-
+/* ======================
+   BOOK LIST
+====================== */
 .bookList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -100,11 +124,12 @@
   border-radius: 14px;
   padding: 12px;
   text-align: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bookCard:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .cover {
@@ -139,8 +164,9 @@
   opacity: 0.7;
 }
 
-/* ====================== BUTTONS ====================== */
-
+/* ======================
+   BUTTONS
+====================== */
 .actions {
   margin-top: 12px;
   display: flex;
@@ -160,14 +186,15 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   text-decoration: none;
 }
 
 .readBtn:hover,
 .downloadBtn:hover,
 .openBtn:hover {
-  opacity: 0.8;
+  opacity: 0.85;
+  transform: scale(1.05);
 }
 
 .openBtn {
@@ -175,15 +202,20 @@
   color: #fff;
 }
 
-/* ============ RESPONSIVENESS ============ */
+/* ======================
+   RESPONSIVE
+====================== */
+@media (max-width: 900px) {
+  .container {
+    margin-left: 0;
+  }
+}
 
 @media (max-width: 600px) {
   .slideCard {
     min-width: 110px;
   }
-  .container{
-    margin-left: 0;
-  }
+
   .slideImage {
     height: 140px;
   }
@@ -192,7 +224,13 @@
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  .cover {
+  .cover,
+  .noCover {
     height: 180px;
+  }
+
+  .searchInput {
+    max-width: 100%;
+    font-size: 14px;
   }
 }
