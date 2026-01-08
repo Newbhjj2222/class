@@ -1,4 +1,3 @@
-
 import styles from "../styles/addbook.module.css";
 import { FiBook, FiUpload, FiLink } from "react-icons/fi";
 import { useState } from "react";
@@ -26,16 +25,21 @@ export default function AddBook({ username }) {
       body: formData,
     });
 
-    const data = await res.json();
-    if (!res.ok || !data.secure_url) {
+    if (!res.ok) {
       throw new Error("Cloudinary upload failed");
+    }
+
+    const data = await res.json();
+
+    if (!data.secure_url) {
+      throw new Error("No file URL returned");
     }
 
     return data.secure_url;
   }
 
   // ===============================
-  // HANDLE SUBMIT
+  // HANDLE SUBMIT (NO API)
   // ===============================
   async function handlePublish(e) {
     e.preventDefault();
@@ -44,14 +48,14 @@ export default function AddBook({ username }) {
 
     try {
       const form = e.target;
-      const title = form.title.value;
+      const title = form.title.value.trim();
       const coverFile = form.cover.files[0];
 
       if (!title || !coverFile) {
         throw new Error("Fill all required fields");
       }
 
-      // 1️⃣ Upload cover
+      // 1️⃣ Upload cover image
       const coverUrl = await uploadToCloudinary(coverFile, "image");
 
       let bookUrl = "";
@@ -67,30 +71,33 @@ export default function AddBook({ username }) {
         bookName = pdfFile.name;
         bookSize = pdfFile.size;
       } else {
-        bookUrl = form.bookUrl.value;
+        bookUrl = form.bookUrl.value.trim();
         if (!bookUrl) throw new Error("Shyiramo Book URL");
+
+        bookName = "External URL";
+        bookSize = 0;
       }
 
-      // 3️⃣ Save to API
-      const res = await fetch("/api/save-book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          author: username,
-          coverUrl,
-          bookUrl,
-          bookType, // pdf | url
-          bookName,
-          bookSize,
-        }),
+      // 3️⃣ Save locally (localStorage)
+      const stored = JSON.parse(localStorage.getItem("books") || "[]");
+
+      stored.push({
+        id: Date.now(),
+        title,
+        author: username,
+        coverUrl,
+        bookUrl,
+        bookType,
+        bookName,
+        bookSize,
+        createdAt: new Date().toISOString(),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      localStorage.setItem("books", JSON.stringify(stored));
 
       alert("Igitabo cyoherejwe neza ✔️");
       form.reset();
+      setBookType("pdf");
     } catch (err) {
       setError(err.message || "Upload failed");
     }
@@ -122,7 +129,6 @@ export default function AddBook({ username }) {
           <label>
             <input
               type="radio"
-              value="pdf"
               checked={bookType === "pdf"}
               onChange={() => setBookType("pdf")}
             />
@@ -132,7 +138,6 @@ export default function AddBook({ username }) {
           <label>
             <input
               type="radio"
-              value="url"
               checked={bookType === "url"}
               onChange={() => setBookType("url")}
             />
