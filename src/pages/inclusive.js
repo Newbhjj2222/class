@@ -96,7 +96,7 @@ export default function InclusiveLessonsPage() {
 
   return (
     <>
-      <Net />
+      
 
       <div className={styles.container}>
         <h1 className={styles.title}>Upload Isomo (Inclusive)</h1>
