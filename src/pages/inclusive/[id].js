@@ -120,15 +120,15 @@ export default function LessonPage({ lesson, initialComments }) {
       {/* Voice comment recorder */}
       <div className={styles.recorder}>
         {!recording ? (
-          <button onClick={startRecording}>🎙️ Tanga Igitekerezo</button>
+          <button onClick={startRecording}>🎙️ Record Answers/comments</button>
         ) : (
-          <button onClick={stopRecording}>⏹️ Hagarika</button>
+          <button onClick={stopRecording}>⏹️ Submit</button>
         )}
       </div>
 
       {/* Comments section */}
       <div className={styles.comments}>
-        <h3>Ibitekerezo / Ibisubizo</h3>
+        <h3>Comments / Answers</h3>
         {comments.map((c, i) => (
           <div key={i} className={styles.comment}>
             <strong>{c.username}</strong>
