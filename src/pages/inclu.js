@@ -12,7 +12,7 @@ export default function InclusiveListPage({ lessons }) {
   return (
     <>
       <div className={styles.container}>
-        <h1 className={styles.title}>Amasomo Yose</h1>
+        <h1 className={styles.title}>Inclusive Courses</h1>
 
         <div className={styles.grid}>
           {lessons.map((lesson) => (
