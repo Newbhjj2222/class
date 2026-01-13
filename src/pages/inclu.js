@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { db } from "../../components/firebase";
+import { db } from "../components/firebase";
 import {
   collection,
   getDocs,
   orderBy,
   query,
 } from "firebase/firestore";
-import styles from "../../styles/inclusive.module.css";
+import styles from "../styles/inclusive.module.css";
 
 export default function InclusiveListPage({ lessons }) {
   return (
