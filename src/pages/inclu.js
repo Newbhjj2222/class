@@ -1,46 +1,54 @@
-import { useRef } from "react";
+import Link from "next/link";
+import { db } from "../../components/firebase";
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import styles from "../../styles/inclusive.module.css";
 
-export default function TTSLesson() {
-  const textRef = useRef();
-
-  const readText = () => {
-    const text = textRef.current.innerText;
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "rw-RW"; // Ikinyarwanda
-    speechSynthesis.speak(utterance);
-  };
-
-  const stopReading = () => {
-    speechSynthesis.cancel();
-  };
-
+export default function InclusiveListPage({ lessons }) {
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Isomo 1: Gusoma no Kumva</h1>
+    <>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Amasomo Yose</h1>
 
-      <article ref={textRef} className="text-lg leading-relaxed mb-6">
-        <p>
-          Gusoma ni ingenzi cyane mu buzima bwa buri munsi. Bituma dushobora kumenya amakuru no kwiga ibintu bishya.
-        </p>
-        <p>
-          Kugira ngo dusome neza, tugomba kwitondera inyuguti, amagambo n'interuro.
-        </p>
-      </article>
-
-      <div className="space-x-4">
-        <button
-          onClick={readText}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Soma Text
-        </button>
-        <button
-          onClick={stopReading}
-          className="px-4 py-2 bg-gray-400 text-white rounded"
-        >
-          Hagarika
-        </button>
+        <div className={styles.grid}>
+          {lessons.map((lesson) => (
+            <Link
+              key={lesson.id}
+              href={`/inclusive/${lesson.id}`}
+              className={styles.card}
+            >
+              <h2>{lesson.lessonTitle}</h2>
+              <p>{lesson.lessonContent.slice(0, 120)}...</p>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
+}
+
+/* =========================
+   SSR
+========================= */
+export async function getServerSideProps() {
+  const q = query(
+    collection(db, "inclusive"),
+    orderBy("createdAt", "desc")
+  );
+
+  const snap = await getDocs(q);
+
+  const lessons = snap.docs.map((doc) => ({
+    id: doc.id,
+    lessonTitle: doc.data().lessonTitle || "",
+    lessonContent: doc.data().lessonContent || "",
+  }));
+
+  return {
+    props: { lessons },
+  };
 }
