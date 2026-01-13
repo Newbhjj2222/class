@@ -1,0 +1,45 @@
+.container {
+  max-width: 720px;
+  margin: 120px auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 1.9rem;
+  margin-bottom: 12px;
+}
+
+.content {
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.audio {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.recorder button {
+  background: #2563eb;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.comments {
+  margin-top: 32px;
+}
+
+.comment {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--background);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.comment audio {
+  width: 100%;
+  margin-top: 6px;
+}
