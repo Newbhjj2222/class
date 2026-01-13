@@ -1,7 +1,5 @@
-"use client";
-
-import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import {
   doc,
   getDoc,
@@ -16,47 +14,28 @@ import { db } from "../../components/firebase";
 import Cookies from "js-cookie";
 import styles from "../../styles/lesson.module.css";
 
-export default function LessonPage() {
+export default function LessonPage({ lesson, initialComments }) {
   const router = useRouter();
-  const { id } = router.query;
-
   const audioRef = useRef(null);
+
   const mediaRecorderRef = useRef(null);
   const audioChunks = useRef([]);
 
-  const [lesson, setLesson] = useState(null);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState(initialComments);
   const [recording, setRecording] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchLesson = async () => {
-      const snap = await getDoc(doc(db, "inclusive", id));
-      setLesson(snap.data());
-    };
-
-    const fetchComments = async () => {
-      const q = query(
-        collection(db, "comments"),
-        where("lessonId", "==", id)
-      );
-      const snap = await getDocs(q);
-      setComments(snap.docs.map((d) => d.data()));
-    };
-
-    fetchLesson();
-    fetchComments();
-  }, [id]);
-
-  // auto play audio
+  /* =========================
+     Auto play audio (client)
+  ========================= */
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.play().catch(() => {});
     }
-  }, [lesson]);
+  }, []);
 
-  // start recording
+  /* =========================
+     Voice recording
+  ========================= */
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
@@ -75,13 +54,11 @@ export default function LessonPage() {
     setRecording(true);
   };
 
-  // stop recording
   const stopRecording = () => {
     mediaRecorderRef.current.stop();
     setRecording(false);
   };
 
-  // upload comment
   const uploadComment = async () => {
     const blob = new Blob(audioChunks.current, {
       type: "audio/webm",
@@ -102,13 +79,14 @@ export default function LessonPage() {
     const data = await res.json();
 
     const comment = {
-      lessonId: id,
+      lessonId: lesson.id,
       username: Cookies.get("username") || "anonymous",
       audioUrl: data.secure_url,
       createdAt: serverTimestamp(),
     };
 
     await addDoc(collection(db, "comments"), comment);
+
     setComments((prev) => [...prev, comment]);
   };
 
@@ -132,7 +110,7 @@ export default function LessonPage() {
       <div className={styles.recorder}>
         {!recording ? (
           <button onClick={startRecording}>
-            🎙️ Tangira Comment
+            🎙️ Tanga Igitekerezo
           </button>
         ) : (
           <button onClick={stopRecording}>
@@ -153,4 +131,40 @@ export default function LessonPage() {
       </div>
     </div>
   );
+}
+
+/* =========================
+   SSR
+========================= */
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+
+  const lessonSnap = await getDoc(
+    doc(db, "inclusive", id)
+  );
+
+  if (!lessonSnap.exists()) {
+    return { notFound: true };
+  }
+
+  const lesson = {
+    id,
+    ...lessonSnap.data(),
+  };
+
+  const q = query(
+    collection(db, "comments"),
+    where("lessonId", "==", id)
+  );
+
+  const snap = await getDocs(q);
+
+  const initialComments = snap.docs.map((d) => ({
+    username: d.data().username,
+    audioUrl: d.data().audioUrl,
+  }));
+
+  return {
+    props: { lesson, initialComments },
+  };
 }
