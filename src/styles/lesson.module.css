@@ -6,12 +6,19 @@
 
 .title {
   font-size: 1.9rem;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  color: var(--foreground);
 }
 
 .content {
-  line-height: 1.7;
   margin-bottom: 20px;
+  line-height: 1.8;
+  color: var(--foreground);
+}
+
+.paragraph {
+  margin-bottom: 14px;
+  color: var(--foreground);
 }
 
 .audio {
@@ -25,6 +32,7 @@
   padding: 12px 18px;
   border-radius: 14px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .comments {
