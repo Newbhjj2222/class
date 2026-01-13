@@ -14,10 +14,22 @@ import { db } from "../../components/firebase";
 import Cookies from "js-cookie";
 import styles from "../../styles/lesson.module.css";
 
+/* ===============================
+   Helper functions
+=============================== */
+// Kuramo HTML tags zose
+const stripHtml = (text = "") => text.replace(/<\/?[^>]+(>|$)/g, "");
+
+// Gukora paragraphs zitandukanye
+const toParagraphs = (text = "") =>
+  stripHtml(text)
+    .split(/\n\s*\n|\n/) // empty line cyangwa newline
+    .map((p) => p.trim())
+    .filter(Boolean);
+
 export default function LessonPage({ lesson, initialComments }) {
   const router = useRouter();
   const audioRef = useRef(null);
-
   const mediaRecorderRef = useRef(null);
   const audioChunks = useRef([]);
 
@@ -25,7 +37,7 @@ export default function LessonPage({ lesson, initialComments }) {
   const [recording, setRecording] = useState(false);
 
   /* =========================
-     Auto play audio (client)
+     Auto play audio
   ========================= */
   useEffect(() => {
     if (audioRef.current) {
@@ -45,9 +57,7 @@ export default function LessonPage({ lesson, initialComments }) {
     mediaRecorderRef.current = recorder;
     audioChunks.current = [];
 
-    recorder.ondataavailable = (e) =>
-      audioChunks.current.push(e.data);
-
+    recorder.ondataavailable = (e) => audioChunks.current.push(e.data);
     recorder.onstop = uploadComment;
 
     recorder.start();
@@ -60,22 +70,15 @@ export default function LessonPage({ lesson, initialComments }) {
   };
 
   const uploadComment = async () => {
-    const blob = new Blob(audioChunks.current, {
-      type: "audio/webm",
-    });
-
+    const blob = new Blob(audioChunks.current, { type: "audio/webm" });
     const formData = new FormData();
     formData.append("file", blob);
     formData.append("upload_preset", "audiomp3");
 
     const res = await fetch(
       "https://api.cloudinary.com/v1_1/dilowy3fd/video/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
+      { method: "POST", body: formData }
     );
-
     const data = await res.json();
 
     const comment = {
@@ -86,7 +89,6 @@ export default function LessonPage({ lesson, initialComments }) {
     };
 
     await addDoc(collection(db, "comments"), comment);
-
     setComments((prev) => [...prev, comment]);
   };
 
@@ -96,8 +98,16 @@ export default function LessonPage({ lesson, initialComments }) {
     <div className={styles.container}>
       <h1 className={styles.title}>{lesson.lessonTitle}</h1>
 
-      <p className={styles.content}>{lesson.lessonContent}</p>
+      {/* Cleaned paragraphs */}
+      <div className={styles.content}>
+        {toParagraphs(lesson.lessonContent).map((para, index) => (
+          <p key={index} className={styles.paragraph}>
+            {para}
+          </p>
+        ))}
+      </div>
 
+      {/* Lesson audio */}
       {lesson.audioUrl && (
         <audio
           ref={audioRef}
@@ -107,21 +117,18 @@ export default function LessonPage({ lesson, initialComments }) {
         />
       )}
 
+      {/* Voice comment recorder */}
       <div className={styles.recorder}>
         {!recording ? (
-          <button onClick={startRecording}>
-            🎙️ Tanga Igitekerezo
-          </button>
+          <button onClick={startRecording}>🎙️ Tanga Igitekerezo</button>
         ) : (
-          <button onClick={stopRecording}>
-            ⏹️ Hagarika
-          </button>
+          <button onClick={stopRecording}>⏹️ Hagarika</button>
         )}
       </div>
 
+      {/* Comments section */}
       <div className={styles.comments}>
         <h3>Ibitekerezo / Ibisubizo</h3>
-
         {comments.map((c, i) => (
           <div key={i} className={styles.comment}>
             <strong>{c.username}</strong>
@@ -134,37 +141,23 @@ export default function LessonPage({ lesson, initialComments }) {
 }
 
 /* =========================
-   SSR
+   SSR: Fetch lesson + comments
 ========================= */
 export async function getServerSideProps(context) {
   const { id } = context.params;
 
-  const lessonSnap = await getDoc(
-    doc(db, "inclusive", id)
-  );
+  // Fetch lesson
+  const lessonSnap = await getDoc(doc(db, "inclusive", id));
+  if (!lessonSnap.exists()) return { notFound: true };
+  const lesson = { id, ...lessonSnap.data() };
 
-  if (!lessonSnap.exists()) {
-    return { notFound: true };
-  }
-
-  const lesson = {
-    id,
-    ...lessonSnap.data(),
-  };
-
-  const q = query(
-    collection(db, "comments"),
-    where("lessonId", "==", id)
-  );
-
+  // Fetch comments
+  const q = query(collection(db, "comments"), where("lessonId", "==", id));
   const snap = await getDocs(q);
-
   const initialComments = snap.docs.map((d) => ({
     username: d.data().username,
     audioUrl: d.data().audioUrl,
   }));
 
-  return {
-    props: { lesson, initialComments },
-  };
+  return { props: { lesson, initialComments } };
 }
